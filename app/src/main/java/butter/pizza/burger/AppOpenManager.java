@@ -25,7 +25,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
     private Activity currentActivity;
     private static boolean isShowingAd = false;
     String App_Open_ID = "";
-    int Check = 1;
+    int Check = 1, Count = 1, Total_Count = 3;
     private AppOpenAd.AppOpenAdLoadCallback loadCallback;
 
     private final Application myApplication;
@@ -38,18 +38,16 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
         this.myApplication.registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
+        fetchAd();
 
     }
 
 
     public void showAdIfAvailable() {
 
-        if (Pizza.Exit_Menu_Decided == 100) {
-            return;
-        }
 
         if (Butter.getincreseeee(myApplication) == 202 || Butter.getincreseeee(myApplication) == 203) {
-            Pizza.Max_Inter_Show(myApplication);
+            Pizza.Unity_Inter_App_Open(myApplication);
             return;
         }
 
@@ -57,6 +55,13 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
             Pizza.FB_Inter_Show(myApplication);
             return;
         }
+
+        if (Pizza.Exit_Menu_Decided == 100
+                | Butter.getincreseeee(myApplication) == 200 || Butter.getincreseeee(myApplication) == 201
+                || Butter.getincreseeee(myApplication) == 300 || Butter.getincreseeee(myApplication) == 301) {
+            return;
+        }
+
 
         if (!isShowingAd && isAdAvailable()) {
 
@@ -132,8 +137,11 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
 
     public void fetchAd() {
 
-        if (Pizza.Exit_Menu_Decided == 100) {
-
+        if (Pizza.Exit_Menu_Decided == 100
+                || Butter.getincreseeee(myApplication) == 200 || Butter.getincreseeee(myApplication) == 201
+                || Butter.getincreseeee(myApplication) == 202 || Butter.getincreseeee(myApplication) == 203
+                || Butter.getincreseeee(myApplication) == 300 || Butter.getincreseeee(myApplication) == 301
+                || Butter.getincreseeee(myApplication) == 302 || Butter.getincreseeee(myApplication) == 303) {
             return;
         }
 
@@ -871,9 +879,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
 
                     } else if ((Butter.getSetup(myApplication)).equals("0")) {
 
-                        if (Check == 0) {
-                            App_Open_ID = Butter.getapp_open(myApplication);
-                        }
+                        App_Open_ID = Butter.getapp_open(myApplication);
 
                     }
 
@@ -916,7 +922,39 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
                                             (Butter.getSetup(myApplication)).equals("9") ||
                                             (Butter.getSetup(myApplication)).equals("10")) {
                                         Check = Check + 1;
-                                        fetchAd();
+
+                                        if ((Butter.getSetup(myApplication)).equals("1")) {
+                                            Total_Count = 3;
+                                        } else if ((Butter.getSetup(myApplication)).equals("2")) {
+                                            Total_Count = 4;
+                                        } else if ((Butter.getSetup(myApplication)).equals("3")) {
+                                            Total_Count = 5;
+                                        } else if ((Butter.getSetup(myApplication)).equals("4")) {
+                                            Total_Count = 6;
+                                        } else if ((Butter.getSetup(myApplication)).equals("5")) {
+                                            Total_Count = 7;
+                                        } else if ((Butter.getSetup(myApplication)).equals("6")) {
+                                            Total_Count = 4;
+                                        } else if ((Butter.getSetup(myApplication)).equals("7")) {
+                                            Total_Count = 5;
+                                        } else if ((Butter.getSetup(myApplication)).equals("8")) {
+                                            Total_Count = 6;
+                                        } else if ((Butter.getSetup(myApplication)).equals("9")) {
+                                            Total_Count = 3;
+                                        } else if ((Butter.getSetup(myApplication)).equals("10")) {
+                                            Total_Count = 3;
+                                        } else {
+                                            Total_Count = 3;
+                                        }
+
+                                        if (Count == Total_Count) {
+                                            Count = 1;
+
+                                        } else {
+                                            Count++;
+                                            fetchAd();
+                                        }
+
                                     } else if ((Butter.getSetup(myApplication)).equals("0")) {
                                         Check = 0;
 

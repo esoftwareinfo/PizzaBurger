@@ -4,7 +4,6 @@ import android.content.Context;
 
 public class Butter {
 
-
     private static final String TX = "tx";
 
     public static void settx(Context Context, String string) {
@@ -226,6 +225,18 @@ public class Butter {
     public static int getcount(Context Context) {
         return Context.getSharedPreferences(Context.getPackageName(), 0)
                 .getInt(COUNT, 1);
+    }
+
+    private static final String COUNT_Approval = "count_Approval";
+
+    public static void setcount_Approval(Context Context, int Int) {
+        Context.getSharedPreferences(Context.getPackageName(), 0).edit()
+                .putInt(COUNT_Approval, Int).commit();
+    }
+
+    public static int getcount_Approval(Context Context) {
+        return Context.getSharedPreferences(Context.getPackageName(), 0)
+                .getInt(COUNT_Approval, 1);
     }
 
     private static final String INCREASEEEEE = "increseeee";
@@ -939,6 +950,18 @@ public class Butter {
                 .getString(IRD333, "");
     }
 
+    private static final String FB_SDK_Key = "FB_SDK_Key";
+
+    public static void setFB_SDK_Key(Context Context, String string) {
+        Context.getSharedPreferences(Context.getPackageName(), 0).edit()
+                .putString(FB_SDK_Key, string).commit();
+    }
+
+    public static String getFB_SDK_Key(Context Context) {
+        return Context.getSharedPreferences(Context.getPackageName(), 0)
+                .getString(FB_SDK_Key, "");
+    }
+
     private static final String FB_Banner1 = "FB_Banner1";
 
     public static void setFB_Banner1(Context Context, String string) {
@@ -1321,6 +1344,18 @@ public class Butter {
     public static String getAL_Banner(Context Context) {
         return Context.getSharedPreferences(Context.getPackageName(), 0)
                 .getString(AL_Banner, "");
+    }
+
+    private static final String AL_SDK_Key = "AL_SDK_Key";
+
+    public static void setAL_SDK_Key(Context Context, String string) {
+        Context.getSharedPreferences(Context.getPackageName(), 0).edit()
+                .putString(AL_SDK_Key, string).commit();
+    }
+
+    public static String getAL_SDK_Key(Context Context) {
+        return Context.getSharedPreferences(Context.getPackageName(), 0)
+                .getString(AL_SDK_Key, "");
     }
 
     private static final String AL_MREC_Banner = "AL_MREC_Banner";

@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,22 +38,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.vectordrawable.graphics.drawable.ArgbEvaluator;
 
-import com.applovin.mediation.MaxAd;
-import com.applovin.mediation.MaxAdFormat;
-import com.applovin.mediation.MaxAdListener;
-import com.applovin.mediation.MaxAdViewAdListener;
-import com.applovin.mediation.MaxError;
-import com.applovin.mediation.MaxReward;
-import com.applovin.mediation.MaxRewardedAdListener;
-import com.applovin.mediation.ads.MaxAdView;
-import com.applovin.mediation.ads.MaxInterstitialAd;
-import com.applovin.mediation.ads.MaxRewardedAd;
-import com.applovin.mediation.nativeAds.MaxNativeAdListener;
-import com.applovin.mediation.nativeAds.MaxNativeAdLoader;
-import com.applovin.mediation.nativeAds.MaxNativeAdView;
-import com.applovin.sdk.AppLovinSdk;
-import com.applovin.sdk.AppLovinSdkConfiguration;
-import com.applovin.sdk.AppLovinSdkUtils;
+import com.facebook.ads.AdSettings;
 import com.facebook.ads.AudienceNetworkAds;
 import com.facebook.ads.InterstitialAdListener;
 import com.facebook.ads.NativeAdBase;
@@ -80,6 +66,11 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.google.android.gms.appset.AppSet;
+import com.google.android.gms.appset.AppSetIdClient;
+import com.google.android.gms.appset.AppSetIdInfo;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.startapp.sdk.ads.banner.Banner;
 import com.startapp.sdk.ads.banner.BannerListener;
 import com.startapp.sdk.ads.banner.Mrec;
@@ -92,6 +83,15 @@ import com.tappx.sdk.android.TappxBanner;
 import com.tappx.sdk.android.TappxBannerListener;
 import com.tappx.sdk.android.TappxInterstitial;
 import com.tappx.sdk.android.TappxInterstitialListener;
+import com.unity3d.ads.IUnityAdsInitializationListener;
+import com.unity3d.ads.IUnityAdsLoadListener;
+import com.unity3d.ads.IUnityAdsShowListener;
+import com.unity3d.ads.UnityAds;
+import com.unity3d.ads.UnityAdsShowOptions;
+import com.unity3d.services.banners.BannerErrorInfo;
+import com.unity3d.services.banners.BannerView;
+import com.unity3d.services.banners.UnityBannerSize;
+import com.unity3d.services.banners.UnityBanners;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,93 +116,99 @@ import pl.droidsonroids.gif.GifImageView;
 public class Pizza {
 
     public static Context Contextt;
-    AdView mAdView, mAdView_exit;
-    public InterstitialAd Splash_InterstialAd, InterstialAd, InterstialAd1;
+    public static AdView mAdView, mAdView_exit;
+    public static InterstitialAd Splash_InterstialAd, InterstialAd, InterstialAd1;
 
-    public InterstitialAd InterstialAd_Setup;
-    int Inter_Setup, App_Open_Setup;
+    public static InterstitialAd InterstialAd_Setup;
+    public static int Inter_Setup, App_Open_Setup;
 
-    public RewardedAd mRewardedAd;
-    RewardedInterstitialAd mrewardedInterstitialAd;
+    public static RewardedAd mRewardedAd;
+    public static RewardedInterstitialAd mrewardedInterstitialAd;
 
-    public RewardedInterstitialAd rewardedInterstitialAd;
+    public static RewardedInterstitialAd rewardedInterstitialAd;
 
-    String Tx_ID;
-    String Interstial, Interstial1, Interstial2;
-    String Banner, Banner1, Banner2;
+    public static String Tx_ID;
+    public static String Interstial, Interstial1, Interstial2;
+    public static String Banner, Banner1, Banner2;
 
 
-    String Native_ID_Exit, Native_ID1, Native_ID2;
+    public static String Native_ID_Exit, Native_ID1, Native_ID2;
 
-    String Native_ID;
+    public static String Native_ID;
 
-    String APP_ID, APP_OPEN, REWARD, INTER_REWARD, EXTRA1, EXTRA2;
+    public static String APP_ID, APP_OPEN, REWARD, INTER_REWARD, EXTRA1, EXTRA2;
 
-    TappxBanner Tappxbanner;
+    public static TappxBanner Tappxbanner;
     public static TappxInterstitial Splash_tappxInterstitial_preload, tappxInterstitial,
             tappxInterstitial_preload;
 
     public static StartAppAd startAppAd;
-    private static StartAppAd.AdMode SO;
-    private static StartAppAd.AdMode SO_FULLPAGE = StartAppAd.AdMode.FULLPAGE;
-    private static StartAppAd.AdMode SO_OFFERWALL = StartAppAd.AdMode.OFFERWALL;
+    public static StartAppAd.AdMode SO;
+    public static StartAppAd.AdMode SO_FULLPAGE = StartAppAd.AdMode.FULLPAGE;
+    public static StartAppAd.AdMode SO_OFFERWALL = StartAppAd.AdMode.OFFERWALL;
 
 
-    public AppOpenAd.AppOpenAdLoadCallback loadCallback;
-    public AppOpenAd.AppOpenAdLoadCallback loadCallback1;
-    public AppOpenAd.AppOpenAdLoadCallback loadCallback2;
-    public AppOpenAd.AppOpenAdLoadCallback loadCallback3;
-    private static boolean isShowingAd = false;
+    public static AppOpenAd.AppOpenAdLoadCallback loadCallback;
+    public static AppOpenAd.AppOpenAdLoadCallback loadCallback1;
+    public static AppOpenAd.AppOpenAdLoadCallback loadCallback2;
+    public static AppOpenAd.AppOpenAdLoadCallback loadCallback3;
+    public static boolean isShowingAd = false;
 
-    private AppOpenAd appOpenAd = null;
+    public static AppOpenAd appOpenAd = null;
 
+    public static int Counterrrr = 0;
+
+    public static String FB = "FB", AL = "AL", GL = "GL", TXX = "TX", SA = "SA";
+
+    public static int G_Native_Type;
 
     public static int Server_Yes_No = 1000;
 
-    public int Which_Banner, Which_Banner_Max;
-    public int Which_Native_Exit;
+    public static int Which_Banner, Which_Banner_Max;
+    public static int Which_Native_Exit;
 
-    public int Which_Native, Which_Native_Max;
+    public static int Which_Native, Which_Native_Max;
 
-    String Server = "";
+    public static String Server = "";
 
-    String TX = "", BR1 = "", BR2 = "", IN1 = "", IN2 = "";
+    public static String TX = "", BR1 = "", BR2 = "", IN1 = "", IN2 = "";
 
-    String NA1 = "", NA2 = "", AID = "", AO = "", RD = "", IRD = "", EX1 = "", EX2 = "";
+    public static String NA1 = "", NA2 = "", AID = "", AO = "", RD = "", IRD = "", EX1 = "", EX2 = "";
 
-    String B11 = "", B111 = "", B22 = "", B222 = "", B33 = "", B333 = "", I11 = "", I111 = "", I22 = "", I222 = "", I33 = "", I333 = "", N11 = "", N111 = "", N22 = "", N222 = "", N33 = "", N333 = "", AO11 = "", AO111 = "", AO22 = "", AO222 = "", AO33 = "", AO333 = "", RD11 = "", RD111 = "", RD22 = "", RD222 = "", RD33 = "", RD333 = "", IRD11 = "", IRD111 = "", IRD22 = "", IRD222 = "", IRD33 = "", IRD333 = "";
+    public static String B11 = "", B111 = "", B22 = "", B222 = "", B33 = "", B333 = "", I11 = "", I111 = "", I22 = "", I222 = "", I33 = "", I333 = "", N11 = "", N111 = "", N22 = "", N222 = "", N33 = "", N333 = "", AO11 = "", AO111 = "", AO22 = "", AO222 = "", AO33 = "", AO333 = "", RD11 = "", RD111 = "", RD22 = "", RD222 = "", RD33 = "", RD333 = "", IRD11 = "", IRD111 = "", IRD22 = "", IRD222 = "", IRD33 = "", IRD333 = "";
 
-    String Setup = "";
+    public static String Setup = "";
 
-    String B11_ID = "", B111_ID = "", B22_ID = "", B222_ID = "", B33_ID = "", B333_ID = "", I11_ID = "", I111_ID = "", I22_ID = "", I222_ID = "", I33_ID = "", I333_ID = "", N11_ID = "", N111_ID = "", N22_ID = "", N222_ID = "", N33_ID = "", N333_ID = "", AO11_ID = "", AO111_ID = "", AO22_ID = "", AO222_ID = "", AO33_ID = "", AO333_ID = "", RD11_ID = "", RD111_ID = "", RD22_ID = "", RD222_ID = "", RD33_ID = "", RD333_ID = "", IRD11_ID = "", IRD111_ID = "", IRD22_ID = "", IRD222_ID = "", IRD33_ID = "", IRD333_ID = "";
+    public static String B11_ID = "", B111_ID = "", B22_ID = "", B222_ID = "", B33_ID = "", B333_ID = "", I11_ID = "", I111_ID = "", I22_ID = "", I222_ID = "", I33_ID = "", I333_ID = "", N11_ID = "", N111_ID = "", N22_ID = "", N222_ID = "", N33_ID = "", N333_ID = "", AO11_ID = "", AO111_ID = "", AO22_ID = "", AO222_ID = "", AO33_ID = "", AO333_ID = "", RD11_ID = "", RD111_ID = "", RD22_ID = "", RD222_ID = "", RD33_ID = "", RD333_ID = "", IRD11_ID = "", IRD111_ID = "", IRD22_ID = "", IRD222_ID = "", IRD33_ID = "", IRD333_ID = "";
 
-    String Setup_ID = "";
+    public static String Setup_ID = "";
 
     public static int Inter_Failed, AL_FB_Inter_Failed;
 
-    AdView Pre_Load_mAdView;
-    int Banner_Load_Not = 5;
-    TappxBanner Pre_Tappxbanner_Exit;
+    public static AdView Pre_Load_mAdView;
+    public static int Banner_Load_Not = 5;
+    public static TappxBanner Pre_Tappxbanner_Exit;
 
-    TappxBanner Pre_Tappxbanner;
+    public static TappxBanner Pre_Tappxbanner;
 
-    TemplateView Pre_Load_Native_templateView_Exit;
-    TemplateView Pre_Load_Native_templateView;
-    int Native_Load_Not_Exit = 5;
+    public static TemplateView Pre_Load_Native_templateView_Exit;
+    public static TemplateView Pre_Load_Native_templateView;
+    public static int Native_Load_Not_Exit = 5;
 
-    int Native_Load_Not = 5;
+    public static int Native_Load_Not = 5;
 
-    ConnectivityManager connec;
+    public static ConnectivityManager connec;
 
-    String Packages;
-    String Name;
+    public static String Packages;
+    public static String Name;
 
-    ProgressDialog Ad_ProgressDialog;
+    public static ProgressDialog Ad_ProgressDialog;
 
-    ArrayList<HashMap<String, String>> contactList;
-    public static int Exit_Menu_Decided = 0, Setup_Main = 0;
-    Boolean doubleBackToExitPressedOnce = false;
+    public static ArrayList<HashMap<String, String>> contactList;
+    public static int Exit_Menu_Decided = 0, Setup_Main = 0, For_Approval = 3;
+    public static Boolean doubleBackToExitPressedOnce = false;
 
+    public static String AL_SDK_Key = "";
     public static String AL_Banner = "";
     public static String AL_MREC_Banner = "";
     public static String AL_Inter = "";
@@ -218,6 +224,7 @@ public class Pizza {
     public static com.facebook.ads.NativeAd nativeAd_FB, nativeAd_FB_Pre;
     public static com.facebook.ads.NativeBannerAd nativeAd_Banner_FB, nativeAd_Banner_FB_Pre;
 
+    public static String FB_SDK_Key = "";
     public static int FB_Setup = 1;
     public static String FB_Banner1 = "", FB_Banner2 = "", FB_Banner3 = "", FB_Banner4 = "", FB_Banner5 = "";
     public static String FB_MREC_Banner1 = "", FB_MREC_Banner2 = "", FB_MREC_Banner3 = "", FB_MREC_Banner4 = "", FB_MREC_Banner5 = "";
@@ -235,16 +242,13 @@ public class Pizza {
     public static int FB_banner_loaded_id_count = 1;
     public static int FB_native_loaded_id_count = 1;
 
-    GifImageView gifImageView;
+    public static GifImageView gifImageView;
 
-    public static MaxInterstitialAd max_interstitialAd;
-    public static MaxRewardedAd max_rewardedAd;
-    public static MaxAdView adView, adView_preload;
-    public static MaxNativeAdLoader nativeAdLoader;
-    public static MaxAd nativeAd;
-    public static MaxNativeAdView nativeAdView_PreLoad;
+    AppSetIdClient client;
+    Task<AppSetIdInfo> task;
 
-    public interface OnRewardgetListner {
+
+    public static interface OnRewardgetListner {
         public void OnReward(boolean b);
     }
 
@@ -275,6 +279,7 @@ public class Pizza {
 
         Server = server;
 
+        AdSettings.setTestMode(true);
 
         MobileAds.initialize(Contextt, new OnInitializationCompleteListener() {
             @Override
@@ -285,9 +290,18 @@ public class Pizza {
 
         StartAppSDK.init(context, "" + SO, false);
 
+        client = AppSet.getClient(Contextt);
+        task = client.getAppSetIdInfo();
+        task.addOnSuccessListener(new OnSuccessListener<AppSetIdInfo>() {
+            @Override
+            public void onSuccess(AppSetIdInfo info) {
+                int scope = info.getScope();
+                String id = info.getId();
+            }
+        });
+
+
         startAppAd = new StartAppAd(context.getApplicationContext());
-
-
         StartAppAd.disableSplash();
 
         connec = (ConnectivityManager) Contextt
@@ -362,7 +376,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Decided(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Decided(final int Which_Banner_Load) {
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -414,7 +428,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Normal(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Normal(final int Which_Banner_Load) {
 
         if (Butter.getbanner(Contextt) == 0) {
 
@@ -477,7 +491,8 @@ public class Pizza {
 
                 Banner_Load_Not = 0;
 
-                Pre_Banner_Load_Tappx_Decided(Which_Banner_Load);
+
+                Banner_Load_Not = 200;
 
             }
 
@@ -485,7 +500,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup1(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup1(final int Which_Banner_Load) {
 
         if (Butter.getBB1(Contextt) == 0) {
 
@@ -586,7 +601,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup11(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup11(final int Which_Banner_Load) {
 
         if (Butter.getBB1(Contextt) == 0) {
 
@@ -655,7 +670,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup111(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup111(final int Which_Banner_Load) {
 
         if (Butter.getBB1(Contextt) == 0) {
 
@@ -724,7 +739,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup1111(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup1111(final int Which_Banner_Load) {
 
         if (Butter.getBB1(Contextt) == 0) {
 
@@ -793,7 +808,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup11111(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup11111(final int Which_Banner_Load) {
 
         if (Butter.getBB1(Contextt) == 0) {
 
@@ -862,7 +877,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup2(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup2(final int Which_Banner_Load) {
 
         if (Butter.getBB2(Contextt) == 0) {
 
@@ -931,7 +946,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup22(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup22(final int Which_Banner_Load) {
 
         if (Butter.getBB2(Contextt) == 0) {
 
@@ -1000,7 +1015,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Setup3(final int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Setup3(final int Which_Banner_Load) {
 
         if (Butter.getBB3(Contextt) == 0) {
 
@@ -1061,7 +1076,8 @@ public class Pizza {
 
                 super.onAdFailedToLoad(errorCode);
 
-                Pre_Banner_Load_Tappx_Decided(Which_Banner_Load);
+                Banner_Load_Not = 200;
+
 
             }
 
@@ -1069,7 +1085,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Tappx_Decided(int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Tappx_Decided(int Which_Banner_Load) {
 
         Pre_Tappxbanner = new TappxBanner(Contextt, Butter.gettx(Contextt));
 
@@ -1136,8 +1152,8 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Show_Normal(final RelativeLayout Ad_Layout,
-                                       final int Banner_Type) {
+    public static void Pre_Banner_Show_Normal(final RelativeLayout Ad_Layout,
+                                              final int Banner_Type) {
 
         if (Banner_Load_Not == 1) {
             try {
@@ -1156,10 +1172,29 @@ public class Pizza {
             }
         }
 
+        if (Banner_Load_Not == 200) {
+
+            try {
+
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Banner(Ad_Layout, Banner_Type);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Banner(Ad_Layout, Banner_Type);
+                } else {
+                    Max_Banner(Ad_Layout, Banner_Type);
+                }
+
+            } catch (Exception e) {
+
+            }
+
+        }
+
     }
 
-    public void Pre_Banner_Show_Setup(final RelativeLayout Ad_Layout,
-                                      final int Banner_Type) {
+    public static void Pre_Banner_Show_Setup(final RelativeLayout Ad_Layout,
+                                             final int Banner_Type) {
 
         if (Banner_Load_Not == 1 ||
                 Banner_Load_Not == 11 ||
@@ -1193,10 +1228,29 @@ public class Pizza {
 
         }
 
+        if (Banner_Load_Not == 200) {
+
+            try {
+
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Banner(Ad_Layout, Banner_Type);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Banner(Ad_Layout, Banner_Type);
+                } else {
+                    Max_Banner(Ad_Layout, Banner_Type);
+                }
+
+            } catch (Exception e) {
+
+            }
+
+        }
+
     }
 
-    public void Pre_Banner_Show_Decided(final RelativeLayout Ad_Layout,
-                                        final int Banner_Type) {
+    public static void Pre_Banner_Show_Decided(final RelativeLayout Ad_Layout,
+                                               final int Banner_Type) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Banner_Preload_Show_Decided(Ad_Layout, Banner_Type);
@@ -1228,12 +1282,11 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load(final int Which_Banner_Load) {
 
         Which_Banner_Max = Which_Banner_Load;
 
         if (Exit_Menu_Decided == 100) {
-
             return;
         }
 
@@ -1276,9 +1329,7 @@ public class Pizza {
 
 
                     } else {
-
                         handler.postDelayed(this, 1000);
-
                     }
 
                 }
@@ -1290,7 +1341,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Show(final RelativeLayout Ad_Layout) {
+    public static void Banner_Show(final RelativeLayout Ad_Layout) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Banner_Preload_Show(Ad_Layout);
@@ -1302,7 +1353,6 @@ public class Pizza {
         }
 
         if (Exit_Menu_Decided == 100) {
-
             return;
         }
 
@@ -1327,7 +1377,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Normal(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Normal(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1390,8 +1440,8 @@ public class Pizza {
 
                 super.onAdFailedToLoad(errorCode);
 
+                Banner_Load_Not = 200;
 
-                Pre_Banner_Load_Tappx_Normal(Which_Banner_Load);
 
             }
 
@@ -1399,7 +1449,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Tappx_Normal(int Which_Banner_Load) {
+    public static void Pre_Banner_Load_Tappx_Normal(int Which_Banner_Load) {
 
         Pre_Tappxbanner = new TappxBanner(Contextt, Butter.gettx(Contextt));
 
@@ -1469,7 +1519,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Show_Normal(final RelativeLayout Ad_Layout) {
+    public static void Banner_Show_Normal(final RelativeLayout Ad_Layout) {
 
 
         if (Banner_Load_Not == 1) {
@@ -1506,12 +1556,31 @@ public class Pizza {
 
         }
 
+        if (Banner_Load_Not == 200) {
+
+            try {
+
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Banner(Ad_Layout, Which_Banner);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Banner(Ad_Layout, Which_Banner);
+                } else {
+                    Max_Banner(Ad_Layout, Which_Banner);
+                }
+
+            } catch (Exception e) {
+
+            }
+
+        }
+
         Banner_Pre_Load_Normal(Which_Banner);
 
 
     }
 
-    public void Banner_Pre_Load_Setup1(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup1(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1614,7 +1683,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup11(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup11(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1686,7 +1755,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup111(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup111(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1758,7 +1827,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup1111(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup1111(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1830,7 +1899,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup11111(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup11111(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1902,7 +1971,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup2(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup2(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -1974,7 +2043,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup22(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup22(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -2046,7 +2115,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Pre_Load_Setup3(final int Which_Banner_Load) {
+    public static void Banner_Pre_Load_Setup3(final int Which_Banner_Load) {
 
         Which_Banner = Which_Banner_Load;
 
@@ -2109,7 +2178,7 @@ public class Pizza {
 
                 super.onAdFailedToLoad(errorCode);
 
-                Pre_Banner_Load_Tappx_Normal(Which_Banner_Load);
+                Banner_Load_Not = 200;
 
 
             }
@@ -2118,7 +2187,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Show_Setup(final RelativeLayout Ad_Layout) {
+    public static void Banner_Show_Setup(final RelativeLayout Ad_Layout) {
 
 
         if (Banner_Load_Not == 1) {
@@ -2280,17 +2349,34 @@ public class Pizza {
 
         }
 
+        if (Banner_Load_Not == 200) {
+
+            try {
+
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Banner(Ad_Layout, Which_Banner);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Banner(Ad_Layout, Which_Banner);
+                } else {
+                    Max_Banner(Ad_Layout, Which_Banner);
+                }
+
+            } catch (Exception e) {
+
+            }
+        }
+
         Banner_Pre_Load_Setup1(Which_Banner);
 
 
     }
 
-    public void Native_Pre_Load(final int Which_Native_Load) {
+    public static void Native_Pre_Load(final int Which_Native_Load) {
 
         Which_Native_Max = Which_Native_Load;
 
         if (Exit_Menu_Decided == 100) {
-
             return;
         }
 
@@ -2333,9 +2419,7 @@ public class Pizza {
 
 
                     } else {
-
                         handler.postDelayed(this, 500);
-
                     }
 
                 }
@@ -2345,7 +2429,7 @@ public class Pizza {
         }
     }
 
-    public void Native_Pre_Load_Normal(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Normal(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2391,7 +2475,8 @@ public class Pizza {
                     @Override
                     public void onAdFailedToLoad(LoadAdError adError) {
 
-                        Pre_Banner_Load_Tappx_Normal_For_Native(Which_Native_Load);
+                        Native_Load_Not = 200;
+
 
                     }
                 })
@@ -2404,7 +2489,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup1(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup1(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2488,7 +2573,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup11(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup11(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2547,7 +2632,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup111(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup111(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2606,7 +2691,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup1111(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup1111(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2665,7 +2750,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup11111(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup11111(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2724,7 +2809,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup2(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup2(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2783,7 +2868,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup22(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup22(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2842,7 +2927,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup3(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup3(final int Which_Native_Load) {
 
         Which_Native = Which_Native_Load;
 
@@ -2888,7 +2973,8 @@ public class Pizza {
                     @Override
                     public void onAdFailedToLoad(LoadAdError adError) {
 
-                        Pre_Banner_Load_Tappx_Normal_For_Native(Which_Native_Load);
+                        Native_Load_Not = 200;
+
 
                     }
                 })
@@ -2901,7 +2987,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Tappx_Normal_For_Native(int Which_Native_Load) {
+    public static void Pre_Banner_Load_Tappx_Normal_For_Native(int Which_Native_Load) {
 
         Pre_Tappxbanner = new TappxBanner(Contextt, Butter.gettx(Contextt));
 
@@ -2949,7 +3035,7 @@ public class Pizza {
 
     }
 
-    public void Native_Show_Normal(final RelativeLayout Ad_Layout) {
+    public static void Native_Show_Normal(final RelativeLayout Ad_Layout) {
 
         if (Native_Load_Not == 1) {
 
@@ -2991,9 +3077,24 @@ public class Pizza {
             }
         }
 
+        if (Native_Load_Not == 200) {
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            } else {
+                Max_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            }
+
+
+            Native_Pre_Load_Normal(Which_Native);
+
+        }
+
     }
 
-    public void Native_Show_Setup(final RelativeLayout Ad_Layout) {
+    public static void Native_Show_Setup(final RelativeLayout Ad_Layout) {
 
         if (Native_Load_Not == 1) {
 
@@ -3171,9 +3272,25 @@ public class Pizza {
             }
         }
 
+        if (Native_Load_Not == 200) {
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            } else {
+                Max_Native(Contextt, Ad_Layout, Which_Native, 0, 0, 0);
+            }
+
+
+            Native_Pre_Load_Setup1(Which_Native);
+
+        }
+
+
     }
 
-    public void Native_Show(final RelativeLayout Ad_Layout) {
+    public static void Native_Show(final RelativeLayout Ad_Layout) {
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -3193,7 +3310,6 @@ public class Pizza {
                     }
 
                     if (Exit_Menu_Decided == 100) {
-
                         return;
                     }
 
@@ -3218,9 +3334,7 @@ public class Pizza {
 
 
                 } else {
-
                     handler.postDelayed(this, 1000);
-
                 }
 
             }
@@ -3231,8 +3345,8 @@ public class Pizza {
     }
 
     @SuppressLint({"NewApi", "SetJavaScriptEnabled"})
-    public void Splash_Icon(String App_Name, int Text_Color, int icLauncher,
-                            final Context ads_context, final int animation_type) {
+    public static void Splash_Icon(String App_Name, int Text_Color, int icLauncher,
+                                   final Context ads_context, final int animation_type) {
 
         if (isNetworkConnected(Contextt) == true) {
 
@@ -3549,6 +3663,11 @@ public class Pizza {
 
                     if (Server_Yes_No == 1 || Server_Yes_No == 0) {
 
+                        if (Exit_Menu_Decided == 5) {
+                            Splash_Popup_Dissmiss(builder);
+                            return;
+                        }
+
                         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
                             Max_Inter_Splash(builder, ads_context);
                             return;
@@ -3592,7 +3711,7 @@ public class Pizza {
 
     }
 
-    private void Splash_Popup_Dissmiss(final Dialog builder) {
+    public static void Splash_Popup_Dissmiss(final Dialog builder) {
 
 
         new Handler().postDelayed(new Runnable() {
@@ -3612,11 +3731,10 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
-
             Splash_Popup_Dissmiss(builder);
             return;
         }
@@ -3664,7 +3782,15 @@ public class Pizza {
 
                     Splash_InterstialAd = null;
 
-                    Splash_Tappx_Inter(builder, mContext);
+
+                    if (Butter.getextra2(Contextt).equals(FB)) {
+                        FB_Inter_Splash(builder, mContext);
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Inter_Splash(builder, mContext);
+                    } else {
+                        Max_Inter_Splash(builder, mContext);
+                    }
+
 
                 }
 
@@ -3675,7 +3801,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup1(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup1(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -3761,7 +3887,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup11(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup11(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -3824,7 +3950,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup111(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup111(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -3887,7 +4013,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup1111(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup1111(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -3950,7 +4076,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup11111(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup11111(final Dialog builder, final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -4013,7 +4139,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup2(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup2(final Dialog builder, final Context mContext) {
 
 
         if (Butter.getII2(mContext) == 0) {
@@ -4069,7 +4195,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup22(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup22(final Dialog builder, final Context mContext) {
 
 
         if (Butter.getII2(mContext) == 0) {
@@ -4125,7 +4251,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Interstial_Setup3(final Dialog builder, final Context mContext) {
+    public static void Splash_Interstial_Setup3(final Dialog builder, final Context mContext) {
 
 
         if (Butter.getII3(mContext) == 0) {
@@ -4181,7 +4307,7 @@ public class Pizza {
 
     }
 
-    public void Splash_Tappx_Inter(final Dialog builder, final Context context) {
+    public static void Splash_Tappx_Inter(final Dialog builder, final Context context) {
 
         Splash_tappxInterstitial_preload = new TappxInterstitial(context,
                 Butter.gettx(context));
@@ -4252,7 +4378,7 @@ public class Pizza {
 
     }
 
-    public void Banner(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4317,7 +4443,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Main_Linear(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Main_Linear(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (isNetworkConnected(Contextt) == true) {
 
@@ -4380,7 +4506,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Normal(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Normal(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4464,76 +4590,48 @@ public class Pizza {
 
                             mAdView.destroy();
 
-                            TappxBanner.AdSize Banner_Type_Size_Tappx = null;
 
-                            if (Banner_Type == 1) {
+                            if (Butter.getextra2(Contextt).equals(FB)) {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                                if (G_Native_Type == 2) {
 
-                            } else if (Banner_Type == 2) {
+                                    FB_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                                } else {
 
-                            } else if (Banner_Type == 3) {
+                                    FB_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                            } else if (Butter.getextra2(Contextt).equals(AL)) {
 
-                            } else if (Banner_Type == 4) {
+                                if (G_Native_Type == 2) {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                                    Max_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
+
+                                } else {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
                             } else {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                                if (G_Native_Type == 2) {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
+
+                                } else {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
                             }
 
-                            Tappxbanner = new TappxBanner(Contextt, Butter
-                                    .gettx(Contextt));
-                            Tappxbanner.setAdSize(Banner_Type_Size_Tappx);
-                            Ad_Layout.addView(Tappxbanner);
-                            Tappxbanner.loadAd();
-                            Tappxbanner.setRefreshTimeSeconds(45);
-
-                            Tappxbanner.setListener(new TappxBannerListener() {
-                                @Override
-                                public void onBannerLoaded(
-                                        TappxBanner tappxBanner) {
-                                    Ad_Layout.setVisibility(View.VISIBLE);
-
-                                    Butter.setsplashcount(
-                                            Contextt,
-                                            (Butter.getsplashcount(Contextt) + 1));
-
-                                }
-
-                                @Override
-                                public void onBannerLoadFailed(
-                                        TappxBanner tappxBanner,
-                                        TappxAdError tappxAdError) {
-
-                                    Ad_Layout.setVisibility(View.GONE);
-                                    SO_Banner(Ad_Layout, Banner_Type);
-
-
-                                }
-
-                                @Override
-                                public void onBannerClicked(
-                                        TappxBanner tappxBanner) {
-                                    Ad_Layout.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onBannerExpanded(
-                                        TappxBanner tappxBanner) {
-                                }
-
-                                @Override
-                                public void onBannerCollapsed(
-                                        TappxBanner tappxBanner) {
-                                }
-                            });
 
                         }
                     });
@@ -4550,7 +4648,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Main_Linear_Normal(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Main_Linear_Normal(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4633,77 +4731,50 @@ public class Pizza {
 
                             super.onAdFailedToLoad(errorCode);
 
-                            mAdView.destroy();
 
-                            TappxBanner.AdSize Banner_Type_Size_Tappx = null;
+                            if (Butter.getextra2(Contextt).equals(FB)) {
 
-                            if (Banner_Type == 1) {
+                                if (G_Native_Type == 2) {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                                    FB_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
 
-                            } else if (Banner_Type == 2) {
+                                } else {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                                    FB_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
-                            } else if (Banner_Type == 3) {
+                            } else if (Butter.getextra2(Contextt).equals(AL)) {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                                if (G_Native_Type == 2) {
 
-                            } else if (Banner_Type == 4) {
+                                    Max_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                                } else {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
                             } else {
 
-                                Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                                if (G_Native_Type == 2) {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            G_Native_Type, 0, 0, 0);
+
+                                } else {
+
+                                    Max_Native(Contextt, Ad_Layout,
+                                            Banner_Type, 0, 0, 0);
+                                }
 
                             }
 
-                            Tappxbanner = new TappxBanner(Contextt, Butter
-                                    .gettx(Contextt));
-                            Tappxbanner.setAdSize(Banner_Type_Size_Tappx);
-                            Ad_Layout.addView(Tappxbanner);
-                            Tappxbanner.loadAd();
-                            Tappxbanner.setRefreshTimeSeconds(45);
+                            mAdView.destroy();
 
-                            Tappxbanner.setListener(new TappxBannerListener() {
-                                @Override
-                                public void onBannerLoaded(
-                                        TappxBanner tappxBanner) {
-                                    Ad_Layout.setVisibility(View.VISIBLE);
-
-                                    Butter.setsplashcount(
-                                            Contextt,
-                                            (Butter.getsplashcount(Contextt) + 1));
-
-                                }
-
-                                @Override
-                                public void onBannerLoadFailed(
-                                        TappxBanner tappxBanner,
-                                        TappxAdError tappxAdError) {
-
-                                    Ad_Layout.setVisibility(View.GONE);
-                                    SO_Banner(Ad_Layout, Banner_Type);
-
-                                }
-
-                                @Override
-                                public void onBannerClicked(
-                                        TappxBanner tappxBanner) {
-                                    Ad_Layout.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onBannerExpanded(
-                                        TappxBanner tappxBanner) {
-                                }
-
-                                @Override
-                                public void onBannerCollapsed(
-                                        TappxBanner tappxBanner) {
-                                }
-                            });
 
                         }
                     });
@@ -4720,7 +4791,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Auto_Setup(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4757,7 +4828,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Auto_Setup1(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup1(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4862,7 +4933,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup11(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup11(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -4944,7 +5015,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5026,7 +5097,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup1111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup1111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5108,7 +5179,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup11111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup11111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5190,7 +5261,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup2(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup2(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5272,7 +5343,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup22(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup22(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5354,7 +5425,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup3(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup3(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5429,83 +5500,59 @@ public class Pizza {
 
                 super.onAdFailedToLoad(errorCode);
 
-                mAdView_Setup.destroy();
+                Ad_Layout.removeAllViews();
 
-                TappxBanner.AdSize Banner_Type_Size_Tappx = null;
 
-                if (Banner_Type == 1) {
+                if (Butter.getextra2(Contextt).equals(FB)) {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                    if (G_Native_Type == 2) {
 
-                } else if (Banner_Type == 2) {
+                        FB_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                    } else {
 
-                } else if (Banner_Type == 3) {
+                        FB_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
 
-                } else if (Banner_Type == 4) {
+                    if (G_Native_Type == 2) {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                        Max_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
+
+                    } else {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
                 } else {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                    if (G_Native_Type == 2) {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
+
+                    } else {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
                 }
 
-                Tappxbanner = new TappxBanner(Contextt, Butter
-                        .gettx(Contextt));
-                Tappxbanner.setAdSize(Banner_Type_Size_Tappx);
-                Ad_Layout.addView(Tappxbanner);
-                Tappxbanner.loadAd();
-                Tappxbanner.setRefreshTimeSeconds(45);
 
-                Tappxbanner.setListener(new TappxBannerListener() {
-                    @Override
-                    public void onBannerLoaded(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.VISIBLE);
+                mAdView_Setup.destroy();
 
-                        Butter.setsplashcount(
-                                Contextt,
-                                (Butter.getsplashcount(Contextt) + 1));
-
-                    }
-
-                    @Override
-                    public void onBannerLoadFailed(
-                            TappxBanner tappxBanner,
-                            TappxAdError tappxAdError) {
-
-                        Ad_Layout.setVisibility(View.GONE);
-                        SO_Banner(Ad_Layout, Banner_Type);
-
-                    }
-
-                    @Override
-                    public void onBannerClicked(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onBannerExpanded(
-                            TappxBanner tappxBanner) {
-                    }
-
-                    @Override
-                    public void onBannerCollapsed(
-                            TappxBanner tappxBanner) {
-                    }
-                });
 
             }
         });
     }
 
-    public void Banner_Auto_Setup_Main_Linear(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Main_Linear(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5541,7 +5588,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Auto_Setup_Linear1(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear1(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5646,7 +5693,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear11(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear11(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5728,7 +5775,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5810,7 +5857,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear1111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear1111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5892,7 +5939,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear11111(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear11111(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -5974,7 +6021,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear2(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear2(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -6056,7 +6103,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear22(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear22(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -6138,7 +6185,7 @@ public class Pizza {
         });
     }
 
-    public void Banner_Auto_Setup_Linear3(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Auto_Setup_Linear3(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -6214,83 +6261,57 @@ public class Pizza {
                 super.onAdFailedToLoad(errorCode);
 
                 mAdView_Setup.destroy();
+                Ad_Layout.removeAllViews();
 
-                TappxBanner.AdSize Banner_Type_Size_Tappx = null;
 
-                if (Banner_Type == 1) {
+                if (Butter.getextra2(Contextt).equals(FB)) {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                    if (G_Native_Type == 2) {
 
-                } else if (Banner_Type == 2) {
+                        FB_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                    } else {
 
-                } else if (Banner_Type == 3) {
+                        FB_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
 
-                } else if (Banner_Type == 4) {
+                    if (G_Native_Type == 2) {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
+                        Max_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
+
+                    } else {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
                 } else {
 
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
+                    if (G_Native_Type == 2) {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                G_Native_Type, 0, 0, 0);
+
+                    } else {
+
+                        Max_Native(Contextt, Ad_Layout,
+                                Banner_Type, 0, 0, 0);
+                    }
 
                 }
 
-                Tappxbanner = new TappxBanner(Contextt, Butter
-                        .gettx(Contextt));
-                Tappxbanner.setAdSize(Banner_Type_Size_Tappx);
-                Ad_Layout.addView(Tappxbanner);
-                Tappxbanner.loadAd();
-                Tappxbanner.setRefreshTimeSeconds(45);
-
-                Tappxbanner.setListener(new TappxBannerListener() {
-                    @Override
-                    public void onBannerLoaded(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.VISIBLE);
-
-                        Butter.setsplashcount(
-                                Contextt,
-                                (Butter.getsplashcount(Contextt) + 1));
-
-                    }
-
-                    @Override
-                    public void onBannerLoadFailed(
-                            TappxBanner tappxBanner,
-                            TappxAdError tappxAdError) {
-
-                        Ad_Layout.setVisibility(View.GONE);
-                        SO_Banner(Ad_Layout, Banner_Type);
-
-                    }
-
-                    @Override
-                    public void onBannerClicked(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onBannerExpanded(
-                            TappxBanner tappxBanner) {
-                    }
-
-                    @Override
-                    public void onBannerCollapsed(
-                            TappxBanner tappxBanner) {
-                    }
-                });
 
             }
         });
     }
 
-    public void Splash_Screen(final Context mContext, boolean bool,
-                              final int When_App_Open_How_Much_Time_After) {
+    public static void Splash_Screen(final Context mContext, boolean bool,
+                                     final int When_App_Open_How_Much_Time_After) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6327,7 +6348,7 @@ public class Pizza {
 
     }
 
-    private void Load_Splash_Goog(final Context mContext, int splash_Screen_Time) {
+    public static void Load_Splash_Goog(final Context mContext, int splash_Screen_Time) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6390,18 +6411,8 @@ public class Pizza {
 
     }
 
-    public void Interstial(final Context mContext,
-                           final int How_Much_Time_After_Interstial_Milisecond) {
-
-
-        if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
-            Max_Inter_Show(mContext);
-            return;
-        }
-        if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
-            FB_Inter_Show(mContext);
-            return;
-        }
+    public static void Interstial(final Context mContext,
+                                  final int How_Much_Time_After_Interstial_Milisecond) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -6415,6 +6426,14 @@ public class Pizza {
                 @Override
                 public void run() {
 
+                    if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
+                        Max_Inter_Show(mContext);
+                        return;
+                    }
+                    if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
+                        FB_Inter_Show(mContext);
+                        return;
+                    }
 
                     Pre_Interstial_Show(mContext);
 
@@ -6426,7 +6445,7 @@ public class Pizza {
 
     }
 
-    public void Interstial(final Context mContext) {
+    public static void Interstial(final Context mContext) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Inter_Show(mContext);
@@ -6450,7 +6469,6 @@ public class Pizza {
 
             Interstial_When_Load_Setup1(mContext);
 
-
         } else if ((Butter.getSetup(mContext)).equals("0")) {
 
             Interstial_When_Load_Normal(mContext);
@@ -6460,7 +6478,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Normal(final Context mContext) {
+    public static void Interstial_When_Load_Normal(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6508,7 +6526,25 @@ public class Pizza {
                 public void onAdFailedToLoad(int errorCode) {
                     super.onAdFailedToLoad(errorCode);
 
-                    Tappx_Inter(mContext);
+
+                    if (Butter.getextra2(Contextt).equals(FB)) {
+                        FB_Inter_Show(mContext);
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Inter_Show(mContext);
+                    } else {
+                        Max_Inter_Show(mContext);
+                    }
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Ad_ProgressDialog.dismiss();
+
+                        }
+
+                    }, 1000);
 
                     super.onAdFailedToLoad(errorCode);
 
@@ -6521,7 +6557,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup1(final Context mContext) {
+    public static void Interstial_When_Load_Setup1(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6605,7 +6641,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup11(final Context mContext) {
+    public static void Interstial_When_Load_Setup11(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6664,8 +6700,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup111(final Context mContext) {
-
+    public static void Interstial_When_Load_Setup111(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -6723,7 +6758,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup1111(final Context mContext) {
+    public static void Interstial_When_Load_Setup1111(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6782,7 +6817,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup11111(final Context mContext) {
+    public static void Interstial_When_Load_Setup11111(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -6841,7 +6876,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup2(final Context mContext) {
+    public static void Interstial_When_Load_Setup2(final Context mContext) {
 
 
         if (Butter.getII2(mContext) == 0) {
@@ -6896,8 +6931,9 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup22(final Context mContext) {
+    public static void Interstial_When_Load_Setup22(final Context mContext) {
 
+        Max_Inter(mContext);
 
         if (Butter.getII2(mContext) == 0) {
 
@@ -6951,7 +6987,7 @@ public class Pizza {
 
     }
 
-    public void Interstial_When_Load_Setup3(final Context mContext) {
+    public static void Interstial_When_Load_Setup3(final Context mContext) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -7013,7 +7049,22 @@ public class Pizza {
 
     }
 
-    public void Pre_Interstial_Show(final Context mContext) {
+    public static void Pre_Interstial_Show(final Context mContext) {
+
+
+        if (Exit_Menu_Decided == 5) {
+
+            if (For_Approval <= Butter.getcount_Approval(mContext)) {
+
+                Butter.setcount_Approval(mContext, 1);
+
+            } else {
+                Butter.setcount_Approval(mContext, (Butter.getcount_Approval(mContext) + 1));
+                return;
+            }
+
+
+        }
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Inter_Show(mContext);
@@ -7053,7 +7104,6 @@ public class Pizza {
 
         } else if ((Butter.getextra1(mContext)).equals("2")) {
 
-
             Pre_App_Open_Show((Activity) mContext);
 
         } else {
@@ -7083,7 +7133,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Interstial_Show_End(final Context mContext) {
+    public static void Pre_Interstial_Show_End(final Context mContext) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Inter_Show(mContext);
@@ -7152,7 +7202,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Interstial_Load_Normal(final Context mContext) {
+    public static void Pre_Interstial_Load_Normal(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7200,70 +7250,10 @@ public class Pizza {
 
                     InterstialAd1 = null;
 
-                    tappxInterstitial_preload = new TappxInterstitial(mContext,
-                            Butter.gettx(Contextt));
-                    tappxInterstitial_preload.loadAd();
-                    tappxInterstitial_preload
-                            .setListener(new TappxInterstitialListener() {
-                                @Override
-                                public void onInterstitialLoaded(
-                                        TappxInterstitial tappxInterstitial) {
+                    Inter_Failed = 200;
 
-                                    Inter_Failed = 1;
+                    Max_Inter(mContext);
 
-                                }
-
-                                @Override
-                                public void onInterstitialLoadFailed(
-                                        TappxInterstitial tappxInterstitial,
-                                        TappxAdError tappxAdError) {
-
-
-                                    if ((new Random().nextInt((2 - 1) + 1) + 1) == 1) {
-                                        SO = SO_FULLPAGE;
-                                    } else {
-                                        SO = SO_OFFERWALL;
-                                    }
-
-                                    startAppAd.loadAd(SO, new AdEventListener() {
-                                        @Override
-                                        public void onReceiveAd(Ad ad) {
-
-                                            Inter_Failed = 50;
-
-                                        }
-
-                                        @Override
-                                        public void onFailedToReceiveAd(Ad ad) {
-
-                                        }
-
-                                    });
-
-                                }
-
-                                @Override
-                                public void onInterstitialClicked(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                                @Override
-                                public void onInterstitialDismissed(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                                @Override
-                                public void onInterstitialShown(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                            });
 
                 }
 
@@ -7274,7 +7264,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Interstial_Show_Normal(final Context mContext) {
+    public static void Pre_Interstial_Show_Normal(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7288,6 +7278,19 @@ public class Pizza {
                 if (InterstialAd1 != null) {
                     InterstialAd1.show();
                     Butter.setsplashcount(mContext, 0);
+                }
+
+            }
+
+            if (Inter_Failed == 200) {
+
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Inter_Show(mContext);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Inter_Show(mContext);
+                } else {
+                    Max_Inter_Show(mContext);
                 }
 
             }
@@ -7318,7 +7321,7 @@ public class Pizza {
         }
     }
 
-    public void Pre_Interstial_Show_End_Normal(final Context mContext) {
+    public static void Pre_Interstial_Show_End_Normal(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7334,6 +7337,12 @@ public class Pizza {
 
                 Butter.setsplashcount(mContext,
                         (Butter.getsplashcount(mContext) + 1));
+
+            }
+
+            if (Inter_Failed == 200) {
+
+                Max_Inter_Show(mContext);
 
             }
 
@@ -7360,7 +7369,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup1(final Context mContext) {
+    public static void Load_Inter_Setup1(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7441,7 +7450,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup11(final Context mContext) {
+    public static void Load_Inter_Setup11(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7499,7 +7508,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup111(final Context mContext) {
+    public static void Load_Inter_Setup111(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7557,7 +7566,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup1111(final Context mContext) {
+    public static void Load_Inter_Setup1111(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7615,7 +7624,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup11111(final Context mContext) {
+    public static void Load_Inter_Setup11111(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7673,7 +7682,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup2(final Context mContext) {
+    public static void Load_Inter_Setup2(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7732,7 +7741,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup22(final Context mContext) {
+    public static void Load_Inter_Setup22(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7791,7 +7800,7 @@ public class Pizza {
 
     }
 
-    public void Load_Inter_Setup3(final Context mContext) {
+    public static void Load_Inter_Setup3(final Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -7838,71 +7847,9 @@ public class Pizza {
 
                     InterstialAd_Setup = null;
 
-                    tappxInterstitial_preload = new TappxInterstitial(mContext,
-                            Butter.gettx(Contextt));
-                    tappxInterstitial_preload.loadAd();
-                    tappxInterstitial_preload
-                            .setListener(new TappxInterstitialListener() {
-                                @Override
-                                public void onInterstitialLoaded(
-                                        TappxInterstitial tappxInterstitial) {
+                    Inter_Setup = 200;
 
-                                    Inter_Setup = 0;
-
-
-                                }
-
-                                @Override
-                                public void onInterstitialLoadFailed(
-                                        TappxInterstitial tappxInterstitial,
-                                        TappxAdError tappxAdError) {
-
-                                    Inter_Setup = 50;
-
-                                    if ((new Random().nextInt((2 - 1) + 1) + 1) == 1) {
-                                        SO = SO_FULLPAGE;
-                                    } else {
-                                        SO = SO_OFFERWALL;
-                                    }
-
-                                    startAppAd.loadAd(SO, new AdEventListener() {
-                                        @Override
-                                        public void onReceiveAd(Ad ad) {
-
-                                            Inter_Setup = 50;
-
-                                        }
-
-                                        @Override
-                                        public void onFailedToReceiveAd(Ad ad) {
-
-                                        }
-
-                                    });
-                                }
-
-                                @Override
-                                public void onInterstitialClicked(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                                @Override
-                                public void onInterstitialDismissed(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                                @Override
-                                public void onInterstitialShown(
-                                        TappxInterstitial arg0) {
-
-
-                                }
-
-                            });
+                    Max_Inter(mContext);
 
 
                 }
@@ -7914,7 +7861,7 @@ public class Pizza {
 
     }
 
-    public void Show_Inter_Setup_Show(final Context context) {
+    public static void Show_Inter_Setup_Show(final Context context) {
 
 
         if (isNetworkConnected(context) == true) {
@@ -7936,6 +7883,20 @@ public class Pizza {
 
             }
 
+            if (Inter_Setup == 200) {
+
+
+                Load_Inter_Setup1(context);
+
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Inter_Show(context);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Inter_Show(context);
+                } else {
+                    Max_Inter_Show(context);
+                }
+
+            }
 
             if (Inter_Setup == 0) {
                 if (tappxInterstitial_preload != null)
@@ -7959,7 +7920,7 @@ public class Pizza {
 
     }
 
-    public void Show_Inter_Setup_Show_End(final Context context) {
+    public static void Show_Inter_Setup_Show_End(final Context context) {
 
 
         if (isNetworkConnected(context) == true) {
@@ -7980,6 +7941,11 @@ public class Pizza {
 
             }
 
+            if (Inter_Setup == 200) {
+
+                Max_Inter_Show(context);
+                Load_Inter_Setup1(context);
+            }
 
             if (Inter_Setup == 0) {
                 if (tappxInterstitial_preload != null)
@@ -8001,34 +7967,30 @@ public class Pizza {
 
     }
 
-    public void Interstial_Counted(Context mContext,
-                                   int How_Much_Click_After_Interstial) {
-
-        if (Exit_Menu_Decided == 100) {
-
-            return;
-        }
+    public static void Interstial_Counted(Context mContext,
+                                          int How_Much_Click_After_Interstial) {
 
         if (isNetworkConnected(Contextt) == true) {
+
+            if (Exit_Menu_Decided == 100) {
+                return;
+            }
 
             if (How_Much_Click_After_Interstial <= Butter.getcount(mContext)) {
 
                 Butter.setcount(mContext, 1);
-
                 Pre_Interstial_Show(mContext);
 
             } else {
-
                 Butter.setcount(mContext, (Butter.getcount(mContext) + 1));
-
             }
 
         }
 
     }
 
-    public void Native(Context nContext, final RelativeLayout Ad_Layout,
-                       int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native(Context nContext, final RelativeLayout Ad_Layout,
+                              int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8095,8 +8057,8 @@ public class Pizza {
 
     }
 
-    public void Native_Main_Linear(Context nContext, final RelativeLayout Ad_Layout,
-                                   int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Main_Linear(Context nContext, final RelativeLayout Ad_Layout,
+                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -8161,8 +8123,8 @@ public class Pizza {
 
     }
 
-    public void Native_Normal(Context nContext, final RelativeLayout Ad_Layout,
-                              int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Normal(Context nContext, final RelativeLayout Ad_Layout,
+                                     int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -8218,6 +8180,7 @@ public class Pizza {
                                         Ad_Layout.setLayoutParams(relativeParams);
 
                                         templateView.setVisibility(View.VISIBLE);
+                                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                                     }
@@ -8230,6 +8193,7 @@ public class Pizza {
 
                                         Ad_Layout.removeAllViews();
 
+                                        G_Native_Type = Native_Type;
 
                                         if (Native_Type == 2) {
 
@@ -8267,8 +8231,8 @@ public class Pizza {
         }
     }
 
-    public void Native_Main_Linear_Normal(Context nContext, final RelativeLayout Ad_Layout,
-                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Main_Linear_Normal(Context nContext, final RelativeLayout Ad_Layout,
+                                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -8324,6 +8288,7 @@ public class Pizza {
                                         Ad_Layout.setLayoutParams(relativeParams);
 
                                         templateView.setVisibility(View.VISIBLE);
+                                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                                     }
@@ -8336,6 +8301,7 @@ public class Pizza {
 
                                         Ad_Layout.removeAllViews();
 
+                                        G_Native_Type = Native_Type;
 
                                         if (Native_Type == 2) {
 
@@ -8374,8 +8340,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup(Context nContext, final RelativeLayout Ad_Layout,
-                                  int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup(Context nContext, final RelativeLayout Ad_Layout,
+                                         int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -8412,8 +8378,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup1(Context nContext, final RelativeLayout Ad_Layout,
-                                   int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup1(Context nContext, final RelativeLayout Ad_Layout,
+                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8461,7 +8427,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
-
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
                     }
 
@@ -8509,8 +8475,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup11(Context nContext, final RelativeLayout Ad_Layout,
-                                    int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup11(Context nContext, final RelativeLayout Ad_Layout,
+                                           int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8558,6 +8524,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -8582,8 +8549,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup111(Context nContext, final RelativeLayout Ad_Layout,
-                                     int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup111(Context nContext, final RelativeLayout Ad_Layout,
+                                            int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8631,6 +8598,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -8655,8 +8623,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup1111(Context nContext, final RelativeLayout Ad_Layout,
-                                      int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup1111(Context nContext, final RelativeLayout Ad_Layout,
+                                             int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8704,6 +8672,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -8728,8 +8697,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup11111(Context nContext, final RelativeLayout Ad_Layout,
-                                       int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup11111(Context nContext, final RelativeLayout Ad_Layout,
+                                              int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8777,6 +8746,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -8801,8 +8771,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup2(Context nContext, final RelativeLayout Ad_Layout,
-                                   int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup2(Context nContext, final RelativeLayout Ad_Layout,
+                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8850,6 +8820,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -8874,8 +8845,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup22(Context nContext, final RelativeLayout Ad_Layout,
-                                    int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup22(Context nContext, final RelativeLayout Ad_Layout,
+                                           int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8923,7 +8894,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
-
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
                     }
 
@@ -8947,8 +8918,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup3(Context nContext, final RelativeLayout Ad_Layout,
-                                   int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup3(Context nContext, final RelativeLayout Ad_Layout,
+                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -8996,6 +8967,8 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9006,6 +8979,8 @@ public class Pizza {
                     public void onAdFailedToLoad(LoadAdError adError) {
 
                         Ad_Layout.removeAllViews();
+
+                        G_Native_Type = Native_Type;
 
                         if (Native_Type == 2) {
 
@@ -9028,8 +9003,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Main_Linear(Context nContext, final RelativeLayout Ad_Layout,
-                                              int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Main_Linear(Context nContext, final RelativeLayout Ad_Layout,
+                                                     int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -9066,8 +9041,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear1(Context nContext, final RelativeLayout Ad_Layout,
-                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear1(Context nContext, final RelativeLayout Ad_Layout,
+                                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9115,6 +9090,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9163,8 +9139,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear11(Context nContext, final RelativeLayout Ad_Layout,
-                                           int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear11(Context nContext, final RelativeLayout Ad_Layout,
+                                                  int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9212,6 +9188,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9236,8 +9213,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear111(Context nContext, final RelativeLayout Ad_Layout,
-                                            int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear111(Context nContext, final RelativeLayout Ad_Layout,
+                                                   int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9285,6 +9262,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9309,8 +9287,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear1111(Context nContext, final RelativeLayout Ad_Layout,
-                                             int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear1111(Context nContext, final RelativeLayout Ad_Layout,
+                                                    int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9358,6 +9336,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9382,8 +9361,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear11111(Context nContext, final RelativeLayout Ad_Layout,
-                                              int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear11111(Context nContext, final RelativeLayout Ad_Layout,
+                                                     int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9431,6 +9410,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9455,8 +9435,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear2(Context nContext, final RelativeLayout Ad_Layout,
-                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear2(Context nContext, final RelativeLayout Ad_Layout,
+                                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9504,6 +9484,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9528,8 +9509,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear22(Context nContext, final RelativeLayout Ad_Layout,
-                                           int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear22(Context nContext, final RelativeLayout Ad_Layout,
+                                                  int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9577,6 +9558,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9601,8 +9583,8 @@ public class Pizza {
 
     }
 
-    public void Native_Auto_Setup_Linear3(Context nContext, final RelativeLayout Ad_Layout,
-                                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Auto_Setup_Linear3(Context nContext, final RelativeLayout Ad_Layout,
+                                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9650,6 +9632,7 @@ public class Pizza {
                         Ad_Layout.setLayoutParams(relativeParams);
 
                         templateView.setVisibility(View.VISIBLE);
+                        Ad_Layout.setVisibility(View.VISIBLE);
 
 
                     }
@@ -9660,6 +9643,8 @@ public class Pizza {
                     public void onAdFailedToLoad(LoadAdError adError) {
 
                         Ad_Layout.removeAllViews();
+
+                        G_Native_Type = Native_Type;
 
                         if (Native_Type == 2) {
 
@@ -9682,7 +9667,7 @@ public class Pizza {
 
     }
 
-    public void Start(Context aContext, String App_Name) {
+    public static void Start(Context aContext, String App_Name) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9784,7 +9769,21 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Show(Activity currentActivity) {
+    public static void Pre_App_Open_Show(Activity currentActivity) {
+
+        if (Exit_Menu_Decided == 5) {
+
+            if (For_Approval <= Butter.getcount_Approval(currentActivity)) {
+
+                Butter.setcount_Approval(currentActivity, 1);
+
+            } else {
+                Butter.setcount_Approval(currentActivity, (Butter.getcount_Approval(currentActivity) + 1));
+                return;
+            }
+
+
+        }
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Inter_Show(currentActivity);
@@ -9796,7 +9795,6 @@ public class Pizza {
         }
 
         if (Exit_Menu_Decided == 100) {
-
             return;
         }
 
@@ -9844,7 +9842,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Show_Normal(Activity currentActivity) {
+    public static void Pre_App_Open_Show_Normal(Activity currentActivity) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -9861,14 +9859,11 @@ public class Pizza {
 
                             appOpenAd = null;
                             isShowingAd = false;
-                            Pre_App_Open_Load_Normal(currentActivity);
+
                         }
 
                         @Override
                         public void onAdFailedToShowFullScreenContent(AdError adError) {
-
-                            if (tappxInterstitial_preload != null)
-                                tappxInterstitial_preload.show();
 
                         }
 
@@ -9880,16 +9875,28 @@ public class Pizza {
 
             appOpenAd.show(currentActivity, fullScreenContentCallback);
 
-        } else {
+        }
 
 
-            if (tappxInterstitial_preload != null)
-                tappxInterstitial_preload.show();
+        if (App_Open_Setup == 200) {
+
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Inter_Show(Contextt);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Inter_Show(Contextt);
+            } else {
+                Max_Inter_Show(Contextt);
+            }
 
         }
+
+
+        Pre_App_Open_Load_Normal(currentActivity);
+
     }
 
-    public void Pre_App_Open_Load_Normal(Context mContext) {
+    public static void Pre_App_Open_Load_Normal(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -9913,48 +9920,9 @@ public class Pizza {
                     @Override
                     public void onAppOpenAdFailedToLoad(LoadAdError loadAdError) {
 
+                        App_Open_Setup = 200;
 
-                        tappxInterstitial_preload = new TappxInterstitial(mContext,
-                                Butter.gettx(Contextt));
-                        tappxInterstitial_preload.loadAd();
-                        tappxInterstitial_preload
-                                .setListener(new TappxInterstitialListener() {
-                                    @Override
-                                    public void onInterstitialLoaded(
-                                            TappxInterstitial tappxInterstitial) {
-
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialLoadFailed(
-                                            TappxInterstitial tappxInterstitial,
-                                            TappxAdError tappxAdError) {
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialClicked(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialDismissed(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialShown(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                });
+                        Max_Inter(mContext);
 
 
                     }
@@ -9968,7 +9936,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup1(Context mContext) {
+    public static void Pre_App_Open_Load_Setup1(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10046,7 +10014,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup11(Context mContext) {
+    public static void Pre_App_Open_Load_Setup11(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10100,7 +10068,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup111(Context mContext) {
+    public static void Pre_App_Open_Load_Setup111(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10154,7 +10122,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup1111(Context mContext) {
+    public static void Pre_App_Open_Load_Setup1111(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10208,7 +10176,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup11111(Context mContext) {
+    public static void Pre_App_Open_Load_Setup11111(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10262,7 +10230,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup2(Context mContext) {
+    public static void Pre_App_Open_Load_Setup2(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10318,7 +10286,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup22(Context mContext) {
+    public static void Pre_App_Open_Load_Setup22(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10374,7 +10342,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Load_Setup3(Context mContext) {
+    public static void Pre_App_Open_Load_Setup3(Context mContext) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -10417,48 +10385,10 @@ public class Pizza {
                     @Override
                     public void onAppOpenAdFailedToLoad(LoadAdError loadAdError) {
 
+                        App_Open_Setup = 200;
 
-                        tappxInterstitial_preload = new TappxInterstitial(mContext,
-                                Butter.gettx(Contextt));
-                        tappxInterstitial_preload.loadAd();
-                        tappxInterstitial_preload
-                                .setListener(new TappxInterstitialListener() {
-                                    @Override
-                                    public void onInterstitialLoaded(
-                                            TappxInterstitial tappxInterstitial) {
-                                        App_Open_Setup = 0;
+                        Max_Inter(mContext);
 
-                                    }
-
-                                    @Override
-                                    public void onInterstitialLoadFailed(
-                                            TappxInterstitial tappxInterstitial,
-                                            TappxAdError tappxAdError) {
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialClicked(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialDismissed(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                    @Override
-                                    public void onInterstitialShown(
-                                            TappxInterstitial arg0) {
-
-
-                                    }
-
-                                });
 
                     }
 
@@ -10471,7 +10401,7 @@ public class Pizza {
 
     }
 
-    public void Pre_App_Open_Show_Setup(Activity currentActivity) {
+    public static void Pre_App_Open_Show_Setup(Activity currentActivity) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -10517,6 +10447,19 @@ public class Pizza {
 
         }
 
+        if (App_Open_Setup == 200) {
+
+            Pre_App_Open_Load_Setup1(currentActivity);
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Inter_Show(Contextt);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Inter_Show(Contextt);
+            } else {
+                Max_Inter_Show(Contextt);
+            }
+
+        }
 
         if (App_Open_Setup == 0) {
 
@@ -10528,7 +10471,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show(Activity mContext, String title, String description, int Popupmenu_Type) {
+    public static void Reward_Inter_Show(Activity mContext, String title, String description, int Popupmenu_Type) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Inter_Reward(mContext, title, description, Popupmenu_Type);
@@ -10570,7 +10513,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Normal(Activity mContext, String title, String description, int Popupmenu_Type) {
+    public static void Reward_Inter_Show_Normal(Activity mContext, String title, String description, int Popupmenu_Type) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -10616,6 +10559,15 @@ public class Pizza {
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
                         rewardedInterstitialAd = null;
 
+
+                        if (Butter.getextra2(Contextt).equals(FB)) {
+                            FB_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                            Max_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        } else {
+                            Max_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        }
+
                         progressDialog.dismiss();
 
 
@@ -10625,7 +10577,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup1(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup1(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -10710,7 +10662,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup11(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup11(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -10770,7 +10722,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -10830,7 +10782,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup1111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup1111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -10890,7 +10842,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup11111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup11111(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -10950,7 +10902,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup2(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup2(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11014,7 +10966,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup22(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup22(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11078,7 +11030,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_Setup3(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_Setup3(Activity mContext, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11135,6 +11087,16 @@ public class Pizza {
                     @Override
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
                         rewardedInterstitialAd = null;
+
+
+                        if (Butter.getextra2(Contextt).equals(FB)) {
+                            FB_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                            Max_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        } else {
+                            Max_Inter_Reward(mContext, title, description, Popupmenu_Type);
+                        }
+
                         progressDialog.dismiss();
                     }
                 });
@@ -11142,8 +11104,7 @@ public class Pizza {
 
     }
 
-
-    public void Reward_Inter_Show_with_Dialog(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
+    public static void Reward_Inter_Show_with_Dialog(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
@@ -11209,7 +11170,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Normal(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
+    public static void Reward_Inter_Show_with_Dialog_Normal(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -11247,7 +11208,15 @@ public class Pizza {
                                         mrewardedInterstitialAd = null;
 
 
-                                        onRewardgetListner.OnReward(false);
+                                        if (Butter.getextra2(Contextt).equals(FB)) {
+                                            FB_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        } else {
+                                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        }
+
+
                                         progressDialog.dismiss();
                                     }
 
@@ -11296,7 +11265,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup1(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup1(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11385,7 +11354,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup11(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup11(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11451,7 +11420,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11517,7 +11486,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup1111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup1111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11583,7 +11552,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup11111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup11111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11649,7 +11618,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup2(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup2(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11715,7 +11684,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup22(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup22(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11781,7 +11750,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Inter_Show_with_Dialog_Setup3(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Inter_Show_with_Dialog_Setup3(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
 
         String Inter_Reward_Ad_ID;
@@ -11838,7 +11807,15 @@ public class Pizza {
                         mrewardedInterstitialAd = null;
 
 
-                        onRewardgetListner.OnReward(false);
+                        if (Butter.getextra2(Contextt).equals(FB)) {
+                            FB_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        } else {
+                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        }
+
+
                         progressDialog.dismiss();
                     }
 
@@ -11849,7 +11826,7 @@ public class Pizza {
     }
 
 
-    public void Reward(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
+    public static void Reward(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
@@ -11917,7 +11894,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Normal(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
+    public static void Reward_Normal(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -11954,7 +11931,15 @@ public class Pizza {
                                         mRewardedAd = null;
 
 
-                                        onRewardgetListner.OnReward(false);
+                                        if (Butter.getextra2(Contextt).equals(FB)) {
+                                            FB_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        } else {
+                                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                                        }
+
+
                                         progressDialog.dismiss();
                                     }
 
@@ -12005,7 +11990,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup1(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup1(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12101,7 +12086,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup11(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup11(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12172,7 +12157,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12243,7 +12228,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup1111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup1111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12314,7 +12299,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup11111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup11111(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12385,7 +12370,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup2(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup2(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12456,7 +12441,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup22(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup22(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12527,7 +12512,7 @@ public class Pizza {
 
     }
 
-    public void Reward_Setup3(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
+    public static void Reward_Setup3(Activity mContext, OnRewardgetListner onRewardgetListner, String title, String description, int Popupmenu_Type, CustomProgressDialogue progressDialog) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -12590,7 +12575,17 @@ public class Pizza {
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
 
                         mRewardedAd = null;
-                        onRewardgetListner.OnReward(false);
+
+
+                        if (Butter.getextra2(Contextt).equals(FB)) {
+                            FB_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        } else if (Butter.getextra2(Contextt).equals(AL)) {
+                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        } else {
+                            Max_Reward(mContext, onRewardgetListner, title, description, Popupmenu_Type);
+                        }
+
+
                         progressDialog.dismiss();
                     }
 
@@ -12599,7 +12594,7 @@ public class Pizza {
 
     }
 
-    public void Exit(Context aContext) {
+    public static void Exit(Context aContext) {
 
         Exit("Do you want to exit ?", aContext,
                 "" + aContext.getString(R.string.app_name));
@@ -12607,7 +12602,7 @@ public class Pizza {
     }
 
     @SuppressLint({"InflateParams", "InlinedApi"})
-    public void Exit(String Description, final Context context, String App_Name) {
+    public static void Exit(String Description, final Context context, String App_Name) {
 
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -12670,7 +12665,7 @@ public class Pizza {
 
     }
 
-    public void Tappx_Inter(final Context context) {
+    public static void Tappx_Inter(final Context context) {
 
         if (isNetworkConnected(Contextt) == true) {
 
@@ -12683,7 +12678,12 @@ public class Pizza {
                         TappxInterstitial tappxInterstitial) {
 
                     tappxInterstitial.show();
-                    Ad_ProgressDialog.dismiss();
+
+                    try {
+                        Ad_ProgressDialog.dismiss();
+                    } catch (Exception e) {
+                    }
+
 
                     Butter.setsplashcount(context,
                             (Butter.getsplashcount(context) + 1));
@@ -12704,13 +12704,19 @@ public class Pizza {
                         public void onReceiveAd(Ad ad) {
 
                             startAppAd.showAd();
-                            Ad_ProgressDialog.dismiss();
+                            try {
+                                Ad_ProgressDialog.dismiss();
+                            } catch (Exception e) {
+                            }
 
                         }
 
                         @Override
                         public void onFailedToReceiveAd(Ad ad) {
-                            Ad_ProgressDialog.dismiss();
+                            try {
+                                Ad_ProgressDialog.dismiss();
+                            } catch (Exception e) {
+                            }
                         }
 
                     });
@@ -12742,7 +12748,7 @@ public class Pizza {
     }
 
     @SuppressLint("SetTextI18n")
-    public void Exit_With_Ads_Banner(final Context context) {
+    public static void Exit_With_Ads_Banner(final Context context) {
 
 
         final int Banner_Type = 4;
@@ -12786,7 +12792,7 @@ public class Pizza {
 
     }
 
-    public void Exit_Popup_With_Ads_Banner(final Context context, final int Banner_Type) {
+    public static void Exit_Popup_With_Ads_Banner(final Context context, final int Banner_Type) {
 
         String Description = "Do You Want To Exit ?";
 
@@ -12862,7 +12868,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Back_Setup1(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Back_Setup1(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
 
         if (Exit_Menu_Decided == 100) {
@@ -12989,7 +12995,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Back_Setup2(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Back_Setup2(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
 
         AdSize Banner_Type_Size = null;
@@ -13090,7 +13096,7 @@ public class Pizza {
 
     }
 
-    public void Banner_Back_Setup3(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void Banner_Back_Setup3(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
 
         AdSize Banner_Type_Size = null;
@@ -13181,77 +13187,15 @@ public class Pizza {
                 super.onAdFailedToLoad(errorCode);
 
                 mAdView.destroy();
+                Ad_Layout.removeAllViews();
 
-                TappxBanner.AdSize Banner_Type_Size_Tappx = null;
-
-                if (Banner_Type == 1) {
-
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
-
-                } else if (Banner_Type == 2) {
-
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
-
-                } else if (Banner_Type == 3) {
-
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
-
-                } else if (Banner_Type == 4) {
-
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.BANNER_300x250;
-
+                if (Butter.getextra2(Contextt).equals(FB)) {
+                    FB_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+                    Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
                 } else {
-
-                    Banner_Type_Size_Tappx = TappxBanner.AdSize.SMART_BANNER;
-
+                    Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
                 }
-
-                Tappxbanner = new TappxBanner(Contextt, Butter
-                        .gettx(Contextt));
-                Tappxbanner.setAdSize(Banner_Type_Size_Tappx);
-                Ad_Layout.addView(Tappxbanner);
-                Tappxbanner.loadAd();
-                Tappxbanner.setRefreshTimeSeconds(45);
-
-                Tappxbanner.setListener(new TappxBannerListener() {
-                    @Override
-                    public void onBannerLoaded(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.VISIBLE);
-                        gifImageView.setVisibility(View.GONE);
-
-                        Butter.setsplashcount(
-                                Contextt,
-                                (Butter.getsplashcount(Contextt) + 1));
-
-                    }
-
-                    @Override
-                    public void onBannerLoadFailed(
-                            TappxBanner tappxBanner,
-                            TappxAdError tappxAdError) {
-
-                        Ad_Layout.setVisibility(View.GONE);
-                        SO_Banner(Ad_Layout, Banner_Type);
-
-                    }
-
-                    @Override
-                    public void onBannerClicked(
-                            TappxBanner tappxBanner) {
-                        Ad_Layout.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onBannerExpanded(
-                            TappxBanner tappxBanner) {
-                    }
-
-                    @Override
-                    public void onBannerCollapsed(
-                            TappxBanner tappxBanner) {
-                    }
-                });
 
 
             }
@@ -13260,7 +13204,7 @@ public class Pizza {
 
     }
 
-    public void Exit_With_Ads_Native(final Context context) {
+    public static void Exit_With_Ads_Native(final Context context) {
 
         if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
             Exit_Popup_With_Ads_Native(context);
@@ -13306,7 +13250,7 @@ public class Pizza {
     }
 
     @SuppressLint("SetTextI18n")
-    public void Exit_Popup_With_Ads_Native(final Context context) {
+    public static void Exit_Popup_With_Ads_Native(final Context context) {
 
         int Native_Type = 2;
 
@@ -13385,11 +13329,10 @@ public class Pizza {
 
     }
 
-    public void Native_Back(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Back(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Exit_Menu_Decided == 100) {
-
             return;
         }
 
@@ -13423,7 +13366,7 @@ public class Pizza {
 
     }
 
-    public void Exit_Popup_With_Ads_Loading(final int Which_Native_Load) {
+    public static void Exit_Popup_With_Ads_Loading(final int Which_Native_Load) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -13472,7 +13415,7 @@ public class Pizza {
         }
     }
 
-    public void Native_Pre_Load_Normal_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Normal_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13518,7 +13461,8 @@ public class Pizza {
                     @Override
                     public void onAdFailedToLoad(LoadAdError adError) {
 
-                        Pre_Banner_Load_Tappx_Normal_For_Native_Exit(Which_Native_Load);
+
+                        Native_Load_Not_Exit = 200;
 
                     }
                 })
@@ -13531,7 +13475,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup1_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup1_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13615,7 +13559,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup11_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup11_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13674,7 +13618,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup111_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup111_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13733,7 +13677,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup1111_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup1111_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13792,7 +13736,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup11111_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup11111_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13851,7 +13795,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup2_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup2_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13910,7 +13854,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup22_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup22_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -13969,7 +13913,7 @@ public class Pizza {
 
     }
 
-    public void Native_Pre_Load_Setup3_Exit(final int Which_Native_Load) {
+    public static void Native_Pre_Load_Setup3_Exit(final int Which_Native_Load) {
 
         Which_Native_Exit = Which_Native_Load;
 
@@ -14015,7 +13959,8 @@ public class Pizza {
                     @Override
                     public void onAdFailedToLoad(LoadAdError adError) {
 
-                        Pre_Banner_Load_Tappx_Normal_For_Native_Exit(Which_Native_Load);
+
+                        Native_Load_Not_Exit = 200;
 
                     }
                 })
@@ -14028,7 +13973,7 @@ public class Pizza {
 
     }
 
-    public void Pre_Banner_Load_Tappx_Normal_For_Native_Exit(int Which_Native_Load) {
+    public static void Pre_Banner_Load_Tappx_Normal_For_Native_Exit(int Which_Native_Load) {
 
         Pre_Tappxbanner_Exit = new TappxBanner(Contextt, Butter.gettx(Contextt));
 
@@ -14076,7 +14021,7 @@ public class Pizza {
 
     }
 
-    public void Native_Show_Normal_Exit(final RelativeLayout Ad_Layout) {
+    public static void Native_Show_Normal_Exit(final RelativeLayout Ad_Layout) {
 
         if (Native_Load_Not_Exit == 1) {
 
@@ -14120,9 +14065,22 @@ public class Pizza {
             }
         }
 
+        if (Native_Load_Not_Exit == 200) {
+
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            } else {
+                Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            }
+
+        }
+
     }
 
-    public void Native_Show_Setup_Exit(final RelativeLayout Ad_Layout) {
+    public static void Native_Show_Setup_Exit(final RelativeLayout Ad_Layout) {
 
         if (Native_Load_Not_Exit == 1) {
 
@@ -14309,9 +14267,21 @@ public class Pizza {
             }
         }
 
+        if (Native_Load_Not_Exit == 200) {
+
+            if (Butter.getextra2(Contextt).equals(FB)) {
+                FB_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            } else {
+                Max_Native_Exit(Contextt, Ad_Layout, 2, 0, 0, 0);
+            }
+        }
+
+
     }
 
-    public void Native_Show_Exit(final RelativeLayout Ad_Layout) {
+    public static void Native_Show_Exit(final RelativeLayout Ad_Layout) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -14340,7 +14310,7 @@ public class Pizza {
 
     }
 
-    public void Native_Back_Setup1(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Back_Setup1(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -14442,7 +14412,7 @@ public class Pizza {
 
     }
 
-    public void Native_Back_Setup2(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Back_Setup2(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -14543,7 +14513,7 @@ public class Pizza {
 
     }
 
-    public void Native_Back_Setup3(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Native_Back_Setup3(Context nContext, final RelativeLayout Ad_Layout, int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         if (Exit_Menu_Decided == 100) {
 
@@ -14644,7 +14614,7 @@ public class Pizza {
 
     }
 
-    private void Ad_Popup(Context mContext, String Title_Text_Of_Popup) {
+    public static void Ad_Popup(Context mContext, String Title_Text_Of_Popup) {
 
 
         Ad_ProgressDialog = ProgressDialog.show(mContext, "", ""
@@ -14657,7 +14627,7 @@ public class Pizza {
 
     }
 
-    public void Rate_App_Randomly(Context mContext) {
+    public static void Rate_App_Randomly(Context mContext) {
 
 
         if ((new Random().nextInt((20 - 1) + 1) + 1) == 10) {
@@ -14666,7 +14636,7 @@ public class Pizza {
 
     }
 
-    public void Rate_App(final Context mContext) {
+    public static void Rate_App(final Context mContext) {
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
@@ -14726,7 +14696,7 @@ public class Pizza {
 
     }
 
-    private class GetData extends AsyncTask<Void, Void, Void> {
+    public static class GetData extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -14807,6 +14777,8 @@ public class Pizza {
                         String ird33 = c.getString("ird33");
                         String ird333 = c.getString("ird333");
 
+                        String AL_SDK_Key = c.getString("AL_SDK_Key");
+
                         String AL_Banner = c.getString("AL_Banner");
                         String AL_MREC_Banner = c.getString("AL_MREC_Banner");
                         String AL_Inter = c.getString("AL_Inter");
@@ -14814,6 +14786,8 @@ public class Pizza {
                         String AL_Native_Medium = c.getString("AL_Native_Medium");
                         String AL_Native_Manual = c.getString("AL_Native_Manual");
                         String AL_Reward_Video = c.getString("AL_Reward_Video");
+
+                        String FB_SDK_Key = c.getString("FB_SDK_Key");
 
                         String FB_Setup = c.getString("FB_Setup");
 
@@ -14910,6 +14884,8 @@ public class Pizza {
                         contact.put("ird33", ird33);
                         contact.put("ird333", ird333);
 
+                        contact.put("AL_SDK_Key", AL_SDK_Key);
+
                         contact.put("AL_Banner", AL_Banner);
                         contact.put("AL_MREC_Banner", AL_MREC_Banner);
                         contact.put("AL_Inter", AL_Inter);
@@ -14917,6 +14893,8 @@ public class Pizza {
                         contact.put("AL_Native_Medium", AL_Native_Medium);
                         contact.put("AL_Native_Manual", AL_Native_Manual);
                         contact.put("AL_Reward_Video", AL_Reward_Video);
+
+                        contact.put("FB_SDK_Key", FB_SDK_Key);
 
                         contact.put("FB_Setup", FB_Setup);
 
@@ -15036,6 +15014,8 @@ public class Pizza {
                 IRD33 = "" + contactList.get(0).get("ird33");
                 IRD333 = "" + contactList.get(0).get("ird333");
 
+                AL_SDK_Key = "" + contactList.get(0).get("AL_SDK_Key");
+
                 AL_Banner = "" + contactList.get(0).get("AL_Banner");
                 AL_MREC_Banner = "" + contactList.get(0).get("AL_MREC_Banner");
                 AL_Inter = "" + contactList.get(0).get("AL_Inter");
@@ -15044,6 +15024,7 @@ public class Pizza {
                 AL_Native_Manual = "" + contactList.get(0).get("AL_Native_Manual");
                 AL_Reward_Video = "" + contactList.get(0).get("AL_Reward_Video");
 
+                FB_SDK_Key = "" + contactList.get(0).get("FB_SDK_Key");
 
                 FB_Setup = Integer.parseInt(contactList.get(0).get("FB_Setup"));
 
@@ -15136,6 +15117,8 @@ public class Pizza {
                 Butter.setIRD33(Contextt, "" + IRD33);
                 Butter.setIRD333(Contextt, "" + IRD333);
 
+                Butter.setAL_SDK_Key(Contextt, "" + AL_SDK_Key);
+
                 Butter.setAL_Banner(Contextt, "" + AL_Banner);
                 Butter.setAL_MREC_Banner(Contextt, "" + AL_MREC_Banner);
                 Butter.setAL_Inter(Contextt, "" + AL_Inter);
@@ -15143,6 +15126,8 @@ public class Pizza {
                 Butter.setAL_Native_Medium(Contextt, "" + AL_Native_Medium);
                 Butter.setAL_Native_Manual(Contextt, "" + AL_Native_Manual);
                 Butter.setAL_Reward_Video(Contextt, "" + AL_Reward_Video);
+
+                Butter.setFB_SDK_Key(Contextt, "" + FB_SDK_Key);
 
                 Butter.setFB_Setup(Contextt, FB_Setup);
 
@@ -15197,116 +15182,130 @@ public class Pizza {
                 Server_Yes_No = 1;
 
 
+                if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
+                } else {
+                    MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
+                }
+
+                AudienceNetworkAds.initialize(Contextt);
+                UnityAds.initialize(Contextt, "" + Butter.getAL_SDK_Key(Contextt), false, new IUnityAdsInitializationListener() {
+                    @Override
+                    public void onInitializationComplete() {
+                    }
+
+                    @Override
+                    public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+                    }
+                });
+
+                if (Exit_Menu_Decided == 2 || Exit_Menu_Decided == 4) {
+
+                    Exit_Popup_With_Ads_Loading(0);
+
+                }
+
+                if ((Butter.getextra1(Contextt)).equals("1")) {
+
+                    if ((Butter.getSetup(Contextt)).equals("1") ||
+                            (Butter.getSetup(Contextt)).equals("2") ||
+                            (Butter.getSetup(Contextt)).equals("3") ||
+                            (Butter.getSetup(Contextt)).equals("4") ||
+                            (Butter.getSetup(Contextt)).equals("5") ||
+                            (Butter.getSetup(Contextt)).equals("6") ||
+                            (Butter.getSetup(Contextt)).equals("7") ||
+                            (Butter.getSetup(Contextt)).equals("8") ||
+                            (Butter.getSetup(Contextt)).equals("9") ||
+                            (Butter.getSetup(Contextt)).equals("10")) {
+
+                        Load_Inter_Setup1(Contextt);
+
+                    } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                        Pre_Interstial_Load_Normal(Contextt);
+
+                    }
+
+
+                } else if ((Butter.getextra1(Contextt)).equals("2")) {
+
+                    if ((Butter.getSetup(Contextt)).equals("1") ||
+                            (Butter.getSetup(Contextt)).equals("2") ||
+                            (Butter.getSetup(Contextt)).equals("3") ||
+                            (Butter.getSetup(Contextt)).equals("4") ||
+                            (Butter.getSetup(Contextt)).equals("5") ||
+                            (Butter.getSetup(Contextt)).equals("6") ||
+                            (Butter.getSetup(Contextt)).equals("7") ||
+                            (Butter.getSetup(Contextt)).equals("8") ||
+                            (Butter.getSetup(Contextt)).equals("9") ||
+                            (Butter.getSetup(Contextt)).equals("10")) {
+
+                        Pre_App_Open_Load_Setup1(Contextt);
+
+
+                    } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+
+                        Pre_App_Open_Load_Normal(Contextt);
+
+                    }
+
+
+                } else if ((Butter.getextra1(Contextt)).equals("3")) {
+
+                    Load_Inter_Setup1(Contextt);
+
+                    Pre_App_Open_Load_Setup1(Contextt);
+
+                    Pre_Interstial_Load_Normal(Contextt);
+
+                    Pre_App_Open_Load_Normal(Contextt);
+
+                } else {
+
+                    Load_Inter_Setup1(Contextt);
+
+                    Pre_App_Open_Load_Setup1(Contextt);
+
+                    Pre_Interstial_Load_Normal(Contextt);
+
+                    Pre_App_Open_Load_Normal(Contextt);
+
+                }
+
+
                 if (Exit_Menu_Decided == 100) {
 
 
                 } else if (Exit_Menu_Decided == 200 || Exit_Menu_Decided == 201 || Exit_Menu_Decided == 202 || Exit_Menu_Decided == 203) {
 
-                    AppLovinSdk.getInstance(Contextt).setMediationProvider("max");
-                    AppLovinSdk.initializeSdk(Contextt, new AppLovinSdk.SdkInitializationListener() {
-                        @Override
-                        public void onSdkInitialized(final AppLovinSdkConfiguration configuration) {
-
-                        }
-                    });
-
-                    if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
-                    } else {
-                        MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
-                    }
 
                 } else if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
 
-                    AudienceNetworkAds.initialize(Contextt);
 
+                    Exit_Popup_With_Ads_Loading(0);
 
-                    if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
-                    } else {
-                        MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
+                    if ((Butter.getSetup(Contextt)).equals("1") ||
+                            (Butter.getSetup(Contextt)).equals("2") ||
+                            (Butter.getSetup(Contextt)).equals("3") ||
+                            (Butter.getSetup(Contextt)).equals("4") ||
+                            (Butter.getSetup(Contextt)).equals("5") ||
+                            (Butter.getSetup(Contextt)).equals("6") ||
+                            (Butter.getSetup(Contextt)).equals("7") ||
+                            (Butter.getSetup(Contextt)).equals("8") ||
+                            (Butter.getSetup(Contextt)).equals("9") ||
+                            (Butter.getSetup(Contextt)).equals("10")) {
+
+                        Load_Inter_Setup1(Contextt);
+
+                    } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                        Pre_Interstial_Load_Normal(Contextt);
+
                     }
 
                 } else {
 
-                    if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
-                    } else {
-                        MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
-                    }
 
-                    if (Exit_Menu_Decided == 2 || Exit_Menu_Decided == 4) {
-
-                        Exit_Popup_With_Ads_Loading(0);
-
-                    }
-
-                    if ((Butter.getextra1(Contextt)).equals("1")) {
-
-                        if ((Butter.getSetup(Contextt)).equals("1") ||
-                                (Butter.getSetup(Contextt)).equals("2") ||
-                                (Butter.getSetup(Contextt)).equals("3") ||
-                                (Butter.getSetup(Contextt)).equals("4") ||
-                                (Butter.getSetup(Contextt)).equals("5") ||
-                                (Butter.getSetup(Contextt)).equals("6") ||
-                                (Butter.getSetup(Contextt)).equals("7") ||
-                                (Butter.getSetup(Contextt)).equals("8") ||
-                                (Butter.getSetup(Contextt)).equals("9") ||
-                                (Butter.getSetup(Contextt)).equals("10")) {
-
-
-                            Load_Inter_Setup1(Contextt);
-
-                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
-
-
-                            Pre_Interstial_Load_Normal(Contextt);
-
-                        }
-
-
-                    } else if ((Butter.getextra1(Contextt)).equals("2")) {
-
-                        if ((Butter.getSetup(Contextt)).equals("1") ||
-                                (Butter.getSetup(Contextt)).equals("2") ||
-                                (Butter.getSetup(Contextt)).equals("3") ||
-                                (Butter.getSetup(Contextt)).equals("4") ||
-                                (Butter.getSetup(Contextt)).equals("5") ||
-                                (Butter.getSetup(Contextt)).equals("6") ||
-                                (Butter.getSetup(Contextt)).equals("7") ||
-                                (Butter.getSetup(Contextt)).equals("8") ||
-                                (Butter.getSetup(Contextt)).equals("9") ||
-                                (Butter.getSetup(Contextt)).equals("10")) {
-
-                            Pre_App_Open_Load_Setup3(Contextt);
-
-
-                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
-
-
-                            Pre_App_Open_Load_Normal(Contextt);
-
-                        }
-
-
-                    } else if ((Butter.getextra1(Contextt)).equals("3")) {
-
-                        Load_Inter_Setup1(Contextt);
-
-                        Pre_App_Open_Load_Setup3(Contextt);
-
-                        Pre_Interstial_Load_Normal(Contextt);
-
-                        Pre_App_Open_Load_Normal(Contextt);
-
-                    } else {
-
-                        Load_Inter_Setup1(Contextt);
-
-                        Pre_App_Open_Load_Setup3(Contextt);
-
-                        Pre_Interstial_Load_Normal(Contextt);
-
-                        Pre_App_Open_Load_Normal(Contextt);
-
-                    }
                 }
 
 
@@ -15371,32 +15370,49 @@ public class Pizza {
 
                 } else {
 
+                    if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
+                    } else {
+                        MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
+                    }
+
+                    AudienceNetworkAds.initialize(Contextt);
+                    UnityAds.initialize(Contextt, "" + Butter.getAL_SDK_Key(Contextt), false, new IUnityAdsInitializationListener() {
+                        @Override
+                        public void onInitializationComplete() {
+                        }
+
+                        @Override
+                        public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+                        }
+                    });
+
                     if ((Butter.getincreseeee(Contextt)) == 100) {
 
 
-                    } else if ((Butter.getincreseeee(Contextt)) == 200 || Exit_Menu_Decided == 201) {
-
-                        AppLovinSdk.getInstance(Contextt).setMediationProvider("max");
-                        AppLovinSdk.initializeSdk(Contextt, new AppLovinSdk.SdkInitializationListener() {
-                            @Override
-                            public void onSdkInitialized(final AppLovinSdkConfiguration configuration) {
-
-                            }
-                        });
-
-                        if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
-                        } else {
-                            MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
-                        }
-
-                    } else if ((Butter.getincreseeee(Contextt)) == 300 || Exit_Menu_Decided == 301) {
-
-                        AudienceNetworkAds.initialize(Contextt);
+                    } else if ((Butter.getincreseeee(Contextt)) == 200 || (Butter.getincreseeee(Contextt)) == 201
+                            || (Butter.getincreseeee(Contextt)) == 202 || (Butter.getincreseeee(Contextt)) == 203) {
 
 
-                        if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
-                        } else {
-                            MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
+                    } else if ((Butter.getincreseeee(Contextt)) == 300 || (Butter.getincreseeee(Contextt)) == 301
+                            || (Butter.getincreseeee(Contextt)) == 302 || (Butter.getincreseeee(Contextt)) == 303) {
+
+                        if ((Butter.getSetup(Contextt)).equals("1") ||
+                                (Butter.getSetup(Contextt)).equals("2") ||
+                                (Butter.getSetup(Contextt)).equals("3") ||
+                                (Butter.getSetup(Contextt)).equals("4") ||
+                                (Butter.getSetup(Contextt)).equals("5") ||
+                                (Butter.getSetup(Contextt)).equals("6") ||
+                                (Butter.getSetup(Contextt)).equals("7") ||
+                                (Butter.getSetup(Contextt)).equals("8") ||
+                                (Butter.getSetup(Contextt)).equals("9") ||
+                                (Butter.getSetup(Contextt)).equals("10")) {
+
+                            Load_Inter_Setup1(Contextt);
+
+                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                            Pre_Interstial_Load_Normal(Contextt);
+
                         }
 
                     }
@@ -15406,11 +15422,8 @@ public class Pizza {
                 if ((Butter.getapp_id(Contextt)).equals("ca-app-pub-3940256099942544~3347511713")) {
 
                 } else {
-
                     MobileAds.initialize(Contextt, Butter.getapp_id(Contextt));
-
                 }
-
 
                 Exit_Menu_Decided = 0;
 
@@ -15451,7 +15464,7 @@ public class Pizza {
                             (Butter.getSetup(Contextt)).equals("9") ||
                             (Butter.getSetup(Contextt)).equals("10")) {
 
-                        Pre_App_Open_Load_Setup3(Contextt);
+                        Pre_App_Open_Load_Setup1(Contextt);
 
                     } else if ((Butter.getSetup(Contextt)).equals("0")) {
 
@@ -15475,7 +15488,7 @@ public class Pizza {
 
                         Load_Inter_Setup1(Contextt);
 
-                        Pre_App_Open_Load_Setup3(Contextt);
+                        Pre_App_Open_Load_Setup1(Contextt);
 
                     } else if ((Butter.getSetup(Contextt)).equals("0")) {
 
@@ -15501,7 +15514,7 @@ public class Pizza {
 
                         Load_Inter_Setup1(Contextt);
 
-                        Pre_App_Open_Load_Setup3(Contextt);
+                        Pre_App_Open_Load_Setup1(Contextt);
 
                     } else if ((Butter.getSetup(Contextt)).equals("0")) {
 
@@ -15519,7 +15532,7 @@ public class Pizza {
 
     }
 
-    public class HttpHandler {
+    public static class HttpHandler {
 
         public HttpHandler() {
         }
@@ -15570,7 +15583,7 @@ public class Pizza {
         }
     }
 
-    private boolean isNetworkConnected(Context aContext) {
+    public static boolean isNetworkConnected(Context aContext) {
         ConnectivityManager cm = (ConnectivityManager) aContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -15580,7 +15593,7 @@ public class Pizza {
         return isConnected;
     }
 
-    public void onBackPressed(Context aContext) {
+    public static void onBackPressed(Context aContext) {
 
         if (doubleBackToExitPressedOnce) {
             ((Activity) aContext).moveTaskToBack(true);
@@ -15602,7 +15615,7 @@ public class Pizza {
 
     }
 
-    public void Increase_Ads(Context aContext) {
+    public static void Increase_Ads(Context aContext) {
 
         if (Exit_Menu_Decided == 201 || Exit_Menu_Decided == 203) {
 
@@ -15635,7 +15648,7 @@ public class Pizza {
 
     }
 
-    public void onDestroy(Context aContext) {
+    public static void onDestroy(Context aContext) {
 
         if (Splash_tappxInterstitial_preload != null) {
             Splash_tappxInterstitial_preload.destroy();
@@ -15674,7 +15687,7 @@ public class Pizza {
         }
     }
 
-    public void SO_Banner(final RelativeLayout Ad_Layout, final int Banner_Type) {
+    public static void SO_Banner(final RelativeLayout Ad_Layout, final int Banner_Type) {
 
         if (Banner_Type == 1) {
 
@@ -15711,6 +15724,7 @@ public class Pizza {
                     Ad_Layout.setVisibility(View.GONE);
                 }
             });
+            Ad_Layout.removeAllViews();
             Ad_Layout.addView(SO_Banner);
 
         } else {
@@ -15737,6 +15751,7 @@ public class Pizza {
                     Ad_Layout.setVisibility(View.GONE);
                 }
             });
+            Ad_Layout.removeAllViews();
             Ad_Layout.addView(SO_Banner);
 
         }
@@ -15744,135 +15759,88 @@ public class Pizza {
 
     }
 
-    private void Max_Inter(Context mContext) {
+    public static void Max_Inter(Context mContext) {
 
-        if (Butter.getAL_Inter(Contextt).equals("")) {
-            return;
-        }
+    }
 
-        max_interstitialAd = new MaxInterstitialAd("" + Butter.getAL_Inter(Contextt), (Activity) mContext);
-        max_interstitialAd.loadAd();
-        max_interstitialAd.setListener(new MaxAdListener() {
-            @Override
-            public void onAdLoaded(MaxAd ad) {
-            }
+    public static void FB_Max_Inter(Context mContext) {
 
-            @Override
-            public void onAdDisplayed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-
-                max_interstitialAd.loadAd();
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-
-                max_interstitialAd = null;
-                Tappx_PreLoad_Inter(mContext, 200);
-
-            }
-
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-                max_interstitialAd.loadAd();
-            }
-        });
 
     }
 
     public static void Max_Inter_Show(Context mContext) {
 
         if (Butter.getAL_Inter(Contextt).equals("")) {
+            Tappx_Inter(mContext);
             return;
         }
 
-        try {
-            if (max_interstitialAd != null) {
-                if (max_interstitialAd.isReady()) {
-                    max_interstitialAd.showAd();
-                }
-            }
-
-            if (AL_FB_Inter_Failed == 1) {
-                if (tappxInterstitial_preload != null) {
-                    tappxInterstitial_preload.show();
-                }
-            } else if (AL_FB_Inter_Failed == 50) {
-                if (startAppAd.isReady()) {
-                    startAppAd.showAd();
-
-                }
-            }
-
-            max_interstitialAd.loadAd();
-
-        } catch (Exception e) {
-
-
-        }
+        Unity_Inter(mContext);
 
     }
 
-    private void Max_Inter_Splash(final Dialog builder, final Context mContext) {
+    public static void Max_Inter_Splash(final Dialog builder, final Context mContext) {
 
-
-        if (Butter.getAL_Inter(Contextt).equals("")) {
-            Splash_Popup_Dissmiss(builder);
-            return;
-        }
-
-        max_interstitialAd = new MaxInterstitialAd("" + Butter.getAL_Inter(Contextt), (Activity) mContext);
-        max_interstitialAd.loadAd();
-        max_interstitialAd.setListener(new MaxAdListener() {
+        UnityAds.load("" + Butter.getAL_Inter(Contextt), new IUnityAdsLoadListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
-                if (max_interstitialAd.isReady()) {
-                    max_interstitialAd.showAd();
+            public void onUnityAdsAdLoaded(String placementId) {
+
+                IUnityAdsShowListener showListener = new IUnityAdsShowListener() {
+
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+
+                        if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
+                            FB_Inter(mContext);
+                        }
+                        Splash_Tappx_Inter(builder, mContext);
+
+                    }
+
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                    }
+                };
+
+                try {
+
+                    UnityAds.show((Activity) mContext, "" + Butter.getAL_Inter(Contextt), new UnityAdsShowOptions(), showListener);
                     Splash_Popup_Dissmiss(builder);
+
+
+                    if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
+                        FB_Inter(mContext);
+                    }
+
+                } catch (Exception e) {
+
                 }
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-                Max_Inter(mContext);
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-                Max_Inter(mContext);
-
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
 
                 Splash_Tappx_Inter(builder, mContext);
 
 
-            }
+                if (Exit_Menu_Decided == 300 || Exit_Menu_Decided == 301 || Exit_Menu_Decided == 302 || Exit_Menu_Decided == 303) {
+                    FB_Inter(mContext);
+                }
 
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-                Max_Inter(mContext);
-                Splash_Popup_Dissmiss(builder);
             }
         });
 
-
     }
 
-    private void Max_Reward(Activity activity, OnRewardgetListner onRewardgetListner, String Title, String Description, int Popup_Type) {
+    public static void Max_Reward(Activity activity, OnRewardgetListner onRewardgetListner, String Title, String Description, int Popup_Type) {
 
         CustomProgressDialogue progressDialog = new CustomProgressDialogue(activity, Popup_Type, Title, Description);
 
@@ -15893,61 +15861,44 @@ public class Pizza {
 
                         progressDialog.show();
 
-                        if (Butter.getAL_Reward_Video(Contextt).equals("")) {
-                            progressDialog.dismiss();
-                            onRewardgetListner.OnReward(true);
-                            return;
-                        }
-
-                        max_rewardedAd = MaxRewardedAd.getInstance("" + Butter.getAL_Reward_Video(Contextt), activity);
-                        max_rewardedAd.loadAd();
-                        max_rewardedAd.setListener(new MaxRewardedAdListener() {
+                        UnityAds.load("" + Butter.getAL_Inter(Contextt), new IUnityAdsLoadListener() {
                             @Override
-                            public void onRewardedVideoStarted(MaxAd ad) {
+                            public void onUnityAdsAdLoaded(String placementId) {
 
-                            }
+                                IUnityAdsShowListener showListener = new IUnityAdsShowListener() {
 
-                            @Override
-                            public void onRewardedVideoCompleted(MaxAd ad) {
+                                    @Override
+                                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+                                        onRewardgetListner.OnReward(false);
+                                        progressDialog.dismiss();
+                                    }
 
-                            }
+                                    @Override
+                                    public void onUnityAdsShowStart(String placementId) {
+                                    }
 
-                            @Override
-                            public void onUserRewarded(MaxAd ad, MaxReward reward) {
-                                onRewardgetListner.OnReward(true);
-                                progressDialog.dismiss();
-                            }
+                                    @Override
+                                    public void onUnityAdsShowClick(String placementId) {
+                                    }
 
-                            @Override
-                            public void onAdLoaded(MaxAd ad) {
-                                if (max_rewardedAd.isReady()) {
-                                    max_rewardedAd.showAd();
+                                    @Override
+                                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                                    }
+                                };
+
+                                try {
+
+                                    UnityAds.show((Activity) Contextt, "" + Butter.getAL_Inter(Contextt), new UnityAdsShowOptions(), showListener);
+                                    onRewardgetListner.OnReward(true);
+                                    progressDialog.dismiss();
+
+                                } catch (Exception e) {
+
                                 }
                             }
 
                             @Override
-                            public void onAdDisplayed(MaxAd ad) {
-
-                            }
-
-                            @Override
-                            public void onAdHidden(MaxAd ad) {
-
-                            }
-
-                            @Override
-                            public void onAdClicked(MaxAd ad) {
-
-                            }
-
-                            @Override
-                            public void onAdLoadFailed(String adUnitId, MaxError error) {
-                                onRewardgetListner.OnReward(false);
-                                progressDialog.dismiss();
-                            }
-
-                            @Override
-                            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+                            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
                                 onRewardgetListner.OnReward(false);
                                 progressDialog.dismiss();
                             }
@@ -15967,550 +15918,110 @@ public class Pizza {
 
     }
 
-    private void Max_Inter_Reward(Activity activity, String Title, String Description, int Popup_Type) {
+    public static void Max_Inter_Reward(Activity activity, String Title, String Description, int Popup_Type) {
 
         CustomProgressDialogue progressDialog = new CustomProgressDialogue(activity, Popup_Type, Title, Description);
         progressDialog.show();
 
-        if (Butter.getAL_Reward_Video(Contextt).equals("")) {
-            progressDialog.dismiss();
-            return;
-        }
-        max_rewardedAd = MaxRewardedAd.getInstance("" + Butter.getAL_Reward_Video(Contextt), activity);
-        max_rewardedAd.loadAd();
-        max_rewardedAd.setListener(new MaxRewardedAdListener() {
+        UnityAds.load("" + Butter.getAL_Inter(Contextt), new IUnityAdsLoadListener() {
             @Override
-            public void onRewardedVideoStarted(MaxAd ad) {
+            public void onUnityAdsAdLoaded(String placementId) {
 
-            }
+                IUnityAdsShowListener showListener = new IUnityAdsShowListener() {
 
-            @Override
-            public void onRewardedVideoCompleted(MaxAd ad) {
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+                        progressDialog.dismiss();
+                    }
 
-            }
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {
+                    }
 
-            @Override
-            public void onUserRewarded(MaxAd ad, MaxReward reward) {
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {
+                    }
 
-                progressDialog.dismiss();
-            }
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                    }
+                };
 
-            @Override
-            public void onAdLoaded(MaxAd ad) {
-                if (max_rewardedAd.isReady()) {
-                    max_rewardedAd.showAd();
+                try {
+
+                    UnityAds.show((Activity) Contextt, "" + Butter.getAL_Inter(Contextt), new UnityAdsShowOptions(), showListener);
+                    progressDialog.dismiss();
+
+                } catch (Exception e) {
+
                 }
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-                progressDialog.dismiss();
-            }
-
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
                 progressDialog.dismiss();
             }
         });
 
+    }
+
+    public static void Max_Banner(RelativeLayout Ad_Layout, int Type) {
+
+        Tappx_Banner(Ad_Layout, Type);
 
     }
 
-    private void Max_Banner(RelativeLayout Ad_Layout, int Type) {
+    public static void Max_Native(Context mContext, final RelativeLayout Ad_Layout,
+                                  int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
-        if (Butter.getAL_Banner(Contextt).equals("") || Butter.getAL_MREC_Banner(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
+        Tappx_Banner(Ad_Layout, Native_Type);
 
-        if (Type == 1) {
+    }
 
-            adView = new MaxAdView("" + Butter.getAL_Banner(Contextt), Contextt);
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 50);
-            adView.setLayoutParams(new FrameLayout.LayoutParams(width, heightPx));
+    public static void Max_Native_Exit(Context mContext, final RelativeLayout Ad_Layout,
+                                       int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
-        } else if (Type == 2 || Type == 3 || Type == 4) {
+        Tappx_Banner(Ad_Layout, Native_Type);
 
-            adView = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
+    }
 
-        } else {
-
-            adView = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
-
-        }
-
-
-        adView.loadAd();
-        adView.setListener(new MaxAdViewAdListener() {
-            @Override
-            public void onAdExpanded(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdCollapsed(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdLoaded(MaxAd ad) {
-                Ad_Layout.setVisibility(View.VISIBLE);
-                Ad_Layout.removeAllViews();
-                adView.startAutoRefresh();
-                Ad_Layout.addView(adView);
-            }
-
-            @Override
-            public void onAdDisplayed(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-                Ad_Layout.setVisibility(View.GONE);
-                adView.stopAutoRefresh();
-                Tappx_Banner(Ad_Layout, Type);
-            }
-
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-                Ad_Layout.setVisibility(View.GONE);
-                Tappx_Banner(Ad_Layout, Type);
-            }
-        });
+    public static void Max_Banner_Preload_Decided(int Type) {
 
 
     }
 
-    private void Max_Native(Context mContext, final RelativeLayout Ad_Layout,
-                            int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Max_Banner_Preload_Show_Decided(final RelativeLayout Ad_Layout,
+                                                       final int Banner_Type) {
 
-        if (Butter.getAL_Native_Small(Contextt).equals("") || Butter.getAL_Native_Medium(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
-
-        DisplayMetrics metrics = mContext.getResources()
-                .getDisplayMetrics();
-
-        if (Native_Type == 1) {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 6);
-
-        } else if (Native_Type == 2) {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Medium(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 3);
-
-        } else {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 6);
-
-        }
-
-
-        nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
-            @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
-
-                if (nativeAd != null) {
-                    nativeAdLoader.destroy(nativeAd);
-                }
-                nativeAd = ad;
-
-                Ad_Layout.removeAllViews();
-                Ad_Layout.addView(nativeAdView);
-            }
-
-            @Override
-            public void onNativeAdLoadFailed(final String adUnitId, final MaxError error) {
-                Ad_Layout.setVisibility(View.GONE);
-
-                Tappx_Banner(Ad_Layout, Native_Type);
-
-
-            }
-
-            @Override
-            public void onNativeAdClicked(final MaxAd ad) {
-            }
-        });
-
-        nativeAdLoader.loadAd();
+        Tappx_Banner(Ad_Layout, Banner_Type);
 
     }
 
-    private void Max_Native_Exit(Context mContext, final RelativeLayout Ad_Layout,
-                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void Max_Banner_Preload(int Type) {
 
-        if (Butter.getAL_Native_Small(Contextt).equals("") || Butter.getAL_Native_Medium(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
-
-        DisplayMetrics metrics = mContext.getResources()
-                .getDisplayMetrics();
-
-        if (Native_Type == 1) {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 4);
-
-        } else if (Native_Type == 2) {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Medium(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels);
-
-        } else {
-
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), mContext);
-            Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 4);
-
-        }
-
-
-        nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
-            @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
-
-                if (nativeAd != null) {
-                    nativeAdLoader.destroy(nativeAd);
-                }
-                nativeAd = ad;
-
-                Ad_Layout.setVisibility(View.VISIBLE);
-                Ad_Layout.removeAllViews();
-                Ad_Layout.addView(nativeAdView);
-                gifImageView.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onNativeAdLoadFailed(final String adUnitId, final MaxError error) {
-                Ad_Layout.setVisibility(View.GONE);
-
-
-                Tappx_Banner(Ad_Layout, Native_Type);
-
-            }
-
-            @Override
-            public void onNativeAdClicked(final MaxAd ad) {
-                Max_Native_Exit(mContext, Ad_Layout, Native_Type, 0, 0, 0);
-            }
-        });
-
-        nativeAdLoader.loadAd();
+        Which_Banner_Max = Type;
 
     }
 
-    private void Max_Banner_Preload_Decided(int Type) {
+    public static void Max_Banner_Preload_Show(final RelativeLayout Ad_Layout) {
 
-        if (Butter.getAL_Banner(Contextt).equals("") || Butter.getAL_MREC_Banner(Contextt).equals("")) {
-            return;
-        }
-
-        if (Type == 1) {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_Banner(Contextt), Contextt);
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 50);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(width, heightPx));
-
-        } else if (Type == 2 || Type == 3 || Type == 4) {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
-
-        } else {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
-
-        }
-
-
-        adView_preload.loadAd();
-        adView_preload.setListener(new MaxAdViewAdListener() {
-            @Override
-            public void onAdExpanded(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdCollapsed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoaded(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdDisplayed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-
-
-                adView_preload = null;
-            }
-
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-            }
-        });
-
+        Tappx_Banner(Ad_Layout, Which_Banner_Max);
 
     }
 
-    private void Max_Banner_Preload_Show_Decided(final RelativeLayout Ad_Layout,
-                                                 final int Banner_Type) {
+    public static void Max_Native_Pre_Load(int Native_Type) {
 
-        if (Butter.getAL_Banner(Contextt).equals("") || Butter.getAL_MREC_Banner(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
-
-
-        if (adView_preload != null) {
-            Ad_Layout.setVisibility(View.VISIBLE);
-            Ad_Layout.removeAllViews();
-            adView_preload.startAutoRefresh();
-            Ad_Layout.addView(adView_preload);
-        }
-
-        if (adView_preload == null) {
-            Ad_Layout.setVisibility(View.GONE);
-
-            Tappx_Banner(Ad_Layout, Banner_Type);
-
-        }
-
+        Which_Banner_Max = Native_Type;
 
     }
 
-    private void Max_Banner_Preload(int Type) {
+    public static void Max_Native_Pre_Load_Show(final RelativeLayout Ad_Layout) {
 
-        if (Butter.getAL_Banner(Contextt).equals("") || Butter.getAL_MREC_Banner(Contextt).equals("")) {
-            return;
-        }
-
-        if (Type == 1) {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_Banner(Contextt), Contextt);
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 50);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(width, heightPx));
-
-        } else if (Type == 2 || Type == 3 || Type == 4) {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
-
-        } else {
-
-            adView_preload = new MaxAdView("" + Butter.getAL_MREC_Banner(Contextt), MaxAdFormat.MREC, Contextt);
-            int widthPx = AppLovinSdkUtils.dpToPx(Contextt, 300);
-            int heightPx = AppLovinSdkUtils.dpToPx(Contextt, 250);
-            adView_preload.setLayoutParams(new FrameLayout.LayoutParams(widthPx, heightPx));
-
-        }
-
-
-        adView_preload.loadAd();
-        adView_preload.setListener(new MaxAdViewAdListener() {
-            @Override
-            public void onAdExpanded(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdCollapsed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoaded(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdDisplayed(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdHidden(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdClicked(MaxAd ad) {
-            }
-
-            @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
-
-                adView_preload = null;
-            }
-
-            @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-            }
-        });
-
-
-    }
-
-    private void Max_Banner_Preload_Show(final RelativeLayout Ad_Layout) {
-
-        if (Butter.getAL_Banner(Contextt).equals("") || Butter.getAL_MREC_Banner(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
-
-        if (adView_preload != null) {
-            Ad_Layout.setVisibility(View.VISIBLE);
-            Ad_Layout.removeAllViews();
-            adView_preload.startAutoRefresh();
-            Ad_Layout.addView(adView_preload);
-            Max_Banner_Preload(Which_Banner_Max);
-        }
-        if (adView_preload == null) {
-            Ad_Layout.setVisibility(View.GONE);
-
-            Tappx_Banner(Ad_Layout, Which_Banner_Max);
-
-        }
-
-
-    }
-
-    private void Max_Native_Pre_Load(int Native_Type) {
-
-        if (Butter.getAL_Native_Small(Contextt).equals("") || Butter.getAL_Native_Medium(Contextt).equals("")) {
-            return;
-        }
-
-        if (Native_Type == 1) {
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), Contextt);
-        } else if (Native_Type == 2) {
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Medium(Contextt), Contextt);
-        } else {
-            nativeAdLoader = new MaxNativeAdLoader("" + Butter.getAL_Native_Small(Contextt), Contextt);
-        }
-
-        nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
-            @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
-
-                nativeAdView_PreLoad = nativeAdView;
-
-                if (nativeAd != null) {
-                    nativeAdLoader.destroy(nativeAd);
-                }
-                nativeAd = ad;
-
-
-            }
-
-            @Override
-            public void onNativeAdLoadFailed(final String adUnitId, final MaxError error) {
-
-
-                nativeAdView_PreLoad = null;
-            }
-
-            @Override
-            public void onNativeAdClicked(final MaxAd ad) {
-            }
-        });
-
-        nativeAdLoader.loadAd();
-
-    }
-
-    private void Max_Native_Pre_Load_Show(final RelativeLayout Ad_Layout) {
-
-        if (Butter.getAL_Native_Small(Contextt).equals("") || Butter.getAL_Native_Medium(Contextt).equals("")) {
-            Ad_Layout.setVisibility(View.GONE);
-            return;
-        }
-
-        if (nativeAdView_PreLoad != null) {
-
-            DisplayMetrics metrics = Contextt.getResources()
-                    .getDisplayMetrics();
-            if (Which_Native_Max == 1) {
-                Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 6);
-            } else if (Which_Native_Max == 2) {
-                Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 3);
-            } else {
-                Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels / 6);
-            }
-
-            if (nativeAd != null) {
-                nativeAdLoader.destroy(nativeAd);
-            }
-
-            Ad_Layout.setVisibility(View.VISIBLE);
-            Ad_Layout.removeAllViews();
-            Ad_Layout.addView(nativeAdView_PreLoad);
-            Max_Native_Pre_Load(Which_Native_Max);
-        }
-        if (nativeAdView_PreLoad == null) {
-            Ad_Layout.setVisibility(View.GONE);
-
-            Tappx_Banner(Ad_Layout, Which_Banner_Max);
-
-        }
+        Tappx_Banner(Ad_Layout, Which_Banner_Max);
 
     }
 
     public static void FB_Inter(Context mContext) {
-
 
         if (FB_inter_id_count == 1) {
             FB_inter_id_count = 2;
@@ -16552,8 +16063,16 @@ public class Pizza {
 
                 if (FB_inter_id_count == 6) {
                     FB_inter_id_count = FB_Setup;
-                    Tappx_PreLoad_Inter(mContext, 300);
 
+
+                    if (Butter.getextra2(Contextt).equals(GL)) {
+                        AL_FB_Inter_Failed = 300;
+
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        FB_Max_Inter(mContext);
+                    } else {
+                        FB_Max_Inter(mContext);
+                    }
 
                 } else {
                     FB_Inter(mContext);
@@ -16591,6 +16110,41 @@ public class Pizza {
                 if (FBinterstitialAd.isAdLoaded()) {
                     FBinterstitialAd.show();
                 }
+            } else {
+
+                if (Butter.getextra2(Contextt).equals(GL)) {
+
+
+                    if ((Butter.getSetup(mContext)).equals("1") ||
+                            (Butter.getSetup(Contextt)).equals("2") ||
+                            (Butter.getSetup(Contextt)).equals("3") ||
+                            (Butter.getSetup(Contextt)).equals("4") ||
+                            (Butter.getSetup(Contextt)).equals("5") ||
+                            (Butter.getSetup(Contextt)).equals("6") ||
+                            (Butter.getSetup(Contextt)).equals("7") ||
+                            (Butter.getSetup(Contextt)).equals("8") ||
+                            (Butter.getSetup(Contextt)).equals("9") ||
+                            (Butter.getSetup(Contextt)).equals("10")) {
+
+                        Show_Inter_Setup_Show(mContext);
+
+                    } else if ((Butter.getSetup(mContext)).equals("0")) {
+
+                        Pre_Interstial_Show_Normal(mContext);
+
+                    }
+
+
+                } else if (Butter.getextra2(Contextt).equals(AL)) {
+
+                    Unity_Inter(mContext);
+
+                } else {
+
+                    Unity_Inter(mContext);
+
+                }
+
             }
 
 
@@ -16612,7 +16166,7 @@ public class Pizza {
         }
     }
 
-    private void FB_Inter_Splash(final Dialog builder, final Context mContext) {
+    public static void FB_Inter_Splash(final Dialog builder, final Context mContext) {
 
 
         if (FB_splash_inter_id_count == 1) {
@@ -16646,8 +16200,6 @@ public class Pizza {
 
             @Override
             public void onError(com.facebook.ads.Ad ad, com.facebook.ads.AdError adError) {
-
-
                 FBinterstitialAd_Splash = null;
 
                 int aa = FB_splash_inter_id_count - 1;
@@ -16655,8 +16207,33 @@ public class Pizza {
                 if (FB_splash_inter_id_count == 6) {
                     FB_splash_inter_id_count = FB_Setup;
 
-                    Splash_Tappx_Inter(builder, mContext);
-                    FB_Inter(mContext);
+
+                    if (Butter.getextra2(Contextt).equals(GL)) {
+                        if ((Butter.getSetup(Contextt)).equals("1") ||
+                                (Butter.getSetup(Contextt)).equals("2") ||
+                                (Butter.getSetup(Contextt)).equals("3") ||
+                                (Butter.getSetup(Contextt)).equals("4") ||
+                                (Butter.getSetup(Contextt)).equals("5") ||
+                                (Butter.getSetup(Contextt)).equals("6") ||
+                                (Butter.getSetup(Contextt)).equals("7") ||
+                                (Butter.getSetup(Contextt)).equals("8") ||
+                                (Butter.getSetup(Contextt)).equals("9") ||
+                                (Butter.getSetup(Contextt)).equals("10")) {
+
+                            Splash_Interstial_Setup1(builder, Contextt);
+
+                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                            Splash_Interstial(builder, Contextt);
+
+                        }
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Inter_Splash(builder, mContext);
+                    } else {
+                        Max_Inter_Splash(builder, mContext);
+                    }
+
+
                 } else {
                     FB_Inter_Splash(builder, mContext);
                 }
@@ -16689,7 +16266,7 @@ public class Pizza {
 
     }
 
-    private void FB_Reward(Activity activity, OnRewardgetListner onRewardgetListner, String Title, String Description, int Popup_Type) {
+    public static void FB_Reward(Activity activity, OnRewardgetListner onRewardgetListner, String Title, String Description, int Popup_Type) {
 
         CustomProgressDialogue progressDialog = new CustomProgressDialogue(activity, Popup_Type, Title, Description);
 
@@ -16727,7 +16304,7 @@ public class Pizza {
                             public void onError(com.facebook.ads.Ad ad, com.facebook.ads.AdError adError) {
                                 FBinterstitialAd_Reward = null;
                                 onRewardgetListner.OnReward(false);
-
+                                progressDialog.dismiss();
 
                             }
 
@@ -16768,7 +16345,7 @@ public class Pizza {
 
     }
 
-    private void FB_Inter_Reward(Activity activity, String Title, String Description, int Popup_Type) {
+    public static void FB_Inter_Reward(Activity activity, String Title, String Description, int Popup_Type) {
 
         CustomProgressDialogue progressDialog = new CustomProgressDialogue(activity, Popup_Type, Title, Description);
 
@@ -16803,7 +16380,7 @@ public class Pizza {
                             @Override
                             public void onError(com.facebook.ads.Ad ad, com.facebook.ads.AdError adError) {
                                 FBinterstitialAd_Reward = null;
-
+                                progressDialog.dismiss();
                             }
 
                             @Override
@@ -16843,7 +16420,7 @@ public class Pizza {
 
     }
 
-    public void FB_Banner(RelativeLayout Ad_Layout, int Type) {
+    public static void FB_Banner(RelativeLayout Ad_Layout, int Type) {
 
 
         com.facebook.ads.AdListener adListener;
@@ -16858,7 +16435,35 @@ public class Pizza {
                     Ad_Layout.removeAllViews();
                     Ad_Layout.setVisibility(View.GONE);
                     FB_banner_id_count = FB_Setup;
-                    Tappx_Banner(Ad_Layout, Type);
+
+                    if (Butter.getextra2(Contextt).equals(GL)) {
+
+                        if ((Butter.getSetup(Contextt)).equals("1") ||
+                                (Butter.getSetup(Contextt)).equals("2") ||
+                                (Butter.getSetup(Contextt)).equals("3") ||
+                                (Butter.getSetup(Contextt)).equals("4") ||
+                                (Butter.getSetup(Contextt)).equals("5") ||
+                                (Butter.getSetup(Contextt)).equals("6") ||
+                                (Butter.getSetup(Contextt)).equals("7") ||
+                                (Butter.getSetup(Contextt)).equals("8") ||
+                                (Butter.getSetup(Contextt)).equals("9") ||
+                                (Butter.getSetup(Contextt)).equals("10")) {
+
+                            Banner_Auto_Setup(Ad_Layout, Type);
+
+                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                            Banner_Normal(Ad_Layout, Type);
+
+                        }
+
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Banner(Ad_Layout, Type);
+                    } else {
+                        Max_Banner(Ad_Layout, Type);
+                    }
+
+
                 } else {
                     FB_Banner(Ad_Layout, Type);
                 }
@@ -16969,8 +16574,8 @@ public class Pizza {
 
     }
 
-    public void FB_Native(Context mContext, final RelativeLayout Ad_Layout,
-                          int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void FB_Native(Context mContext, final RelativeLayout Ad_Layout,
+                                 int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
 
         if (Native_Type == 2) {
@@ -17023,12 +16628,42 @@ public class Pizza {
             public void onError(com.facebook.ads.Ad ad, com.facebook.ads.AdError adError) {
                 int aa = FB_native_id_count - 1;
 
-
                 if (FB_native_id_count == 6) {
                     Ad_Layout.removeAllViews();
                     Ad_Layout.setVisibility(View.GONE);
                     FB_native_id_count = FB_Setup;
-                    Tappx_Banner(Ad_Layout, Native_Type);
+
+
+                    if (Butter.getextra2(Contextt).equals(GL)) {
+                        if ((Butter.getSetup(Contextt)).equals("1") ||
+                                (Butter.getSetup(Contextt)).equals("2") ||
+                                (Butter.getSetup(Contextt)).equals("3") ||
+                                (Butter.getSetup(Contextt)).equals("4") ||
+                                (Butter.getSetup(Contextt)).equals("5") ||
+                                (Butter.getSetup(Contextt)).equals("6") ||
+                                (Butter.getSetup(Contextt)).equals("7") ||
+                                (Butter.getSetup(Contextt)).equals("8") ||
+                                (Butter.getSetup(Contextt)).equals("9") ||
+                                (Butter.getSetup(Contextt)).equals("10")) {
+
+                            Native_Auto_Setup(Contextt, Ad_Layout,
+                                    Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+
+                        } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                            Native_Normal(Contextt, Ad_Layout,
+                                    Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+
+                        }
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Native(mContext, Ad_Layout,
+                                Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+                    } else {
+                        Max_Native(mContext, Ad_Layout,
+                                Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+                    }
+
+
                 } else {
                     FB_Native(mContext, Ad_Layout,
                             Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
@@ -17089,8 +16724,8 @@ public class Pizza {
 
     }
 
-    public void FB_Native_Exit(Context mContext, final RelativeLayout Ad_Layout,
-                               int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
+    public static void FB_Native_Exit(Context mContext, final RelativeLayout Ad_Layout,
+                                      int Native_Type, int Bottom_Ad_Margin, int Top_Ad_Margin, int Animation) {
 
         DisplayMetrics metrics = Contextt.getResources()
                 .getDisplayMetrics();
@@ -17150,7 +16785,20 @@ public class Pizza {
                     Ad_Layout.removeAllViews();
                     Ad_Layout.setVisibility(View.GONE);
                     FB_native_exit_id_count = FB_Setup;
-                    Tappx_Banner(Ad_Layout, Native_Type);
+
+
+                    if (Butter.getextra2(Contextt).equals(GL)) {
+
+                        Ad_Layout.getLayoutParams().height = (int) (metrics.heightPixels);
+                        Native_Back(mContext, Ad_Layout, Native_Type, 0, 0, 0);
+
+                    } else if (Butter.getextra2(Contextt).equals(AL)) {
+                        Max_Native_Exit(mContext, Ad_Layout,
+                                Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+                    } else {
+                        Max_Native_Exit(mContext, Ad_Layout,
+                                Native_Type, Bottom_Ad_Margin, Top_Ad_Margin, Animation);
+                    }
 
 
                 } else {
@@ -17179,7 +16827,14 @@ public class Pizza {
 
 
                 FB_native_exit_id_count = FB_Setup;
+                try {
+                    if (gifImageView.getVisibility() == View.VISIBLE) {
+                        gifImageView.setVisibility(View.GONE);
 
+                    }
+                } catch (Exception e) {
+
+                }
             }
 
             @Override
@@ -17214,7 +16869,7 @@ public class Pizza {
 
     }
 
-    public void FB_Banner_Preload_Decided(int Type) {
+    public static void FB_Banner_Preload_Decided(int Type) {
 
 
         com.facebook.ads.AdListener adListener;
@@ -17338,8 +16993,8 @@ public class Pizza {
 
     }
 
-    private void FB_Banner_Preload_Show_Decided(final RelativeLayout Ad_Layout,
-                                                final int Banner_Type) {
+    public static void FB_Banner_Preload_Show_Decided(final RelativeLayout Ad_Layout,
+                                                      final int Banner_Type) {
 
         if (FB_adView_Decided != null) {
             Ad_Layout.setVisibility(View.VISIBLE);
@@ -17347,15 +17002,41 @@ public class Pizza {
             Ad_Layout.addView(FB_adView_Decided);
         } else {
             Ad_Layout.setVisibility(View.GONE);
-            Tappx_Banner(Ad_Layout, Banner_Type);
 
+
+            if (Butter.getextra2(Contextt).equals(GL)) {
+
+                if ((Butter.getSetup(Contextt)).equals("1") ||
+                        (Butter.getSetup(Contextt)).equals("2") ||
+                        (Butter.getSetup(Contextt)).equals("3") ||
+                        (Butter.getSetup(Contextt)).equals("4") ||
+                        (Butter.getSetup(Contextt)).equals("5") ||
+                        (Butter.getSetup(Contextt)).equals("6") ||
+                        (Butter.getSetup(Contextt)).equals("7") ||
+                        (Butter.getSetup(Contextt)).equals("8") ||
+                        (Butter.getSetup(Contextt)).equals("9") ||
+                        (Butter.getSetup(Contextt)).equals("10")) {
+
+                    Banner_Auto_Setup(Ad_Layout, Banner_Type);
+
+                } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                    Banner_Normal(Ad_Layout, Banner_Type);
+
+                }
+
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Banner(Ad_Layout, Banner_Type);
+            } else {
+                Max_Banner(Ad_Layout, Banner_Type);
+            }
 
         }
 
 
     }
 
-    public void FB_Banner_Preload(int Type) {
+    public static void FB_Banner_Preload(int Type) {
 
 
         Which_Banner_Max = Type;
@@ -17479,7 +17160,7 @@ public class Pizza {
 
     }
 
-    private void FB_Banner_Preload_Show(final RelativeLayout Ad_Layout) {
+    public static void FB_Banner_Preload_Show(final RelativeLayout Ad_Layout) {
 
         if (FB_adView_Pre != null) {
             Ad_Layout.setVisibility(View.VISIBLE);
@@ -17488,13 +17169,40 @@ public class Pizza {
         } else {
             Ad_Layout.setVisibility(View.GONE);
 
-            Tappx_Banner(Ad_Layout, Which_Banner_Max);
+
+            if (Butter.getextra2(Contextt).equals(GL)) {
+
+                if ((Butter.getSetup(Contextt)).equals("1") ||
+                        (Butter.getSetup(Contextt)).equals("2") ||
+                        (Butter.getSetup(Contextt)).equals("3") ||
+                        (Butter.getSetup(Contextt)).equals("4") ||
+                        (Butter.getSetup(Contextt)).equals("5") ||
+                        (Butter.getSetup(Contextt)).equals("6") ||
+                        (Butter.getSetup(Contextt)).equals("7") ||
+                        (Butter.getSetup(Contextt)).equals("8") ||
+                        (Butter.getSetup(Contextt)).equals("9") ||
+                        (Butter.getSetup(Contextt)).equals("10")) {
+
+                    Banner_Auto_Setup(Ad_Layout, Which_Banner_Max);
+
+                } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                    Banner_Normal(Ad_Layout, Which_Banner_Max);
+
+                }
+
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Banner(Ad_Layout, Which_Banner_Max);
+            } else {
+                Max_Banner(Ad_Layout, Which_Banner_Max);
+            }
+
 
         }
         FB_Banner_Preload(Which_Banner_Max);
     }
 
-    public void FB_Native_Pre_Load(int Native_Type) {
+    public static void FB_Native_Pre_Load(int Native_Type) {
 
 
         Which_Native_Max = Native_Type;
@@ -17611,7 +17319,7 @@ public class Pizza {
 
     }
 
-    private void FB_Native_Pre_Load_Show(final RelativeLayout Ad_Layout) {
+    public static void FB_Native_Pre_Load_Show(final RelativeLayout Ad_Layout) {
 
 
         if (nativeAd_Banner_FB_Pre != null || nativeAd_FB_Pre != null) {
@@ -17631,7 +17339,36 @@ public class Pizza {
 
         } else {
             Ad_Layout.setVisibility(View.GONE);
-            Tappx_Banner(Ad_Layout, Which_Native_Max);
+
+
+            if (Butter.getextra2(Contextt).equals(GL)) {
+
+                if ((Butter.getSetup(Contextt)).equals("1") ||
+                        (Butter.getSetup(Contextt)).equals("2") ||
+                        (Butter.getSetup(Contextt)).equals("3") ||
+                        (Butter.getSetup(Contextt)).equals("4") ||
+                        (Butter.getSetup(Contextt)).equals("5") ||
+                        (Butter.getSetup(Contextt)).equals("6") ||
+                        (Butter.getSetup(Contextt)).equals("7") ||
+                        (Butter.getSetup(Contextt)).equals("8") ||
+                        (Butter.getSetup(Contextt)).equals("9") ||
+                        (Butter.getSetup(Contextt)).equals("10")) {
+
+                    Native_Auto_Setup(Contextt, Ad_Layout,
+                            Which_Native_Max, 0, 0, 0);
+
+                } else if ((Butter.getSetup(Contextt)).equals("0")) {
+
+                    Native_Normal(Contextt, Ad_Layout,
+                            Which_Native_Max, 0, 0, 0);
+
+                }
+
+            } else if (Butter.getextra2(Contextt).equals(AL)) {
+                Max_Native(Contextt, Ad_Layout, Which_Native_Max, 0, 0, 0);
+            } else {
+                Max_Native(Contextt, Ad_Layout, Which_Native_Max, 0, 0, 0);
+            }
 
         }
 
@@ -17710,7 +17447,9 @@ public class Pizza {
 
     }
 
-    public void Tappx_Banner(RelativeLayout Ad_Layout, int Banner_Type) {
+    public static void Tappx_Banner(RelativeLayout Ad_Layout, int Banner_Type) {
+
+        Ad_Layout.removeAllViews();
 
         TappxBanner.AdSize Banner_Type_Size_Tappx = null;
 
@@ -17747,18 +17486,15 @@ public class Pizza {
             @Override
             public void onBannerLoaded(
                     TappxBanner tappxBanner) {
-                Ad_Layout.setVisibility(View.VISIBLE);
 
+                Ad_Layout.setVisibility(View.VISIBLE);
 
                 try {
                     if (gifImageView.getVisibility() == View.VISIBLE) {
                         gifImageView.setVisibility(View.GONE);
-
                     }
                 } catch (Exception e) {
-
                 }
-
 
                 Butter.setsplashcount(
                         Contextt,
@@ -17773,7 +17509,6 @@ public class Pizza {
 
                 Ad_Layout.setVisibility(View.GONE);
                 SO_Banner(Ad_Layout, Banner_Type);
-
 
             }
 
@@ -17791,6 +17526,156 @@ public class Pizza {
             @Override
             public void onBannerCollapsed(
                     TappxBanner tappxBanner) {
+            }
+        });
+
+    }
+
+    public static void Unity_Inter(Context uContext) {
+
+        Dialog dialog_ad;
+        dialog_ad = new Dialog(uContext);
+        dialog_ad.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (dialog_ad.getWindow() != null)
+            dialog_ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog_ad.setCancelable(false);
+        dialog_ad.setContentView(R.layout.loading_ads);
+
+        TextView title1 = dialog_ad.findViewById(R.id.title);
+        TextView message1 = dialog_ad.findViewById(R.id.message);
+        title1.setText("Loading Ads . . .");
+        message1.setText("Wait While Loading Ads, Sorry for Inconvenience and Thank You for Support and Waiting.");
+
+        dialog_ad.show();
+
+        UnityAds.load("" + Butter.getAL_Inter(Contextt), new IUnityAdsLoadListener() {
+            @Override
+            public void onUnityAdsAdLoaded(String placementId) {
+
+                IUnityAdsShowListener showListener = new IUnityAdsShowListener() {
+
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+                        try {
+                            Tappx_Inter(uContext);
+                            dialog_ad.dismiss();
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                    }
+                };
+
+                try {
+                    UnityAds.show((Activity) Contextt, "" + Butter.getAL_Inter(Contextt), new UnityAdsShowOptions(), showListener);
+                    if (dialog_ad != null) {
+                        if (dialog_ad.isShowing()) {
+                            dialog_ad.dismiss();
+                        }
+                    }
+                } catch (Exception e) {
+                    if (dialog_ad != null) {
+                        if (dialog_ad.isShowing()) {
+                            dialog_ad.dismiss();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                try {
+                    if (dialog_ad != null) {
+                        if (dialog_ad.isShowing()) {
+                            Tappx_Inter(uContext);
+                            dialog_ad.dismiss();
+                        }
+                    }
+
+                } catch (Exception e) {
+                }
+            }
+        });
+    }
+
+    public static void Unity_Inter_App_Open(Context uContext) {
+
+        UnityAds.load("" + Butter.getAL_Inter(Contextt), new IUnityAdsLoadListener() {
+            @Override
+            public void onUnityAdsAdLoaded(String placementId) {
+
+                IUnityAdsShowListener showListener = new IUnityAdsShowListener() {
+
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+                        try {
+                            Tappx_Inter(uContext);
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {
+                    }
+
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                    }
+                };
+
+                try {
+                    UnityAds.show((Activity) Contextt, "" + Butter.getAL_Inter(Contextt), new UnityAdsShowOptions(), showListener);
+                } catch (Exception e) {
+
+                }
+            }
+
+            @Override
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                Tappx_Inter(uContext);
+            }
+        });
+    }
+
+    public static void Unity_Banner(final RelativeLayout Ad_Layout, final int Banner_Type) {
+
+        BannerView bannerView = new BannerView((Activity) Contextt, "" + Butter.getAL_Banner(Contextt), new UnityBannerSize(468, 60));
+        bannerView.load();
+
+        bannerView.setListener(new BannerView.IListener() {
+            @Override
+            public void onBannerLoaded(BannerView bannerAdView) {
+                Ad_Layout.addView(bannerView);
+                Ad_Layout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onBannerClick(BannerView bannerAdView) {
+
+            }
+
+            @Override
+            public void onBannerFailedToLoad(BannerView bannerAdView, BannerErrorInfo errorInfo) {
+                Tappx_Banner(Ad_Layout, Banner_Type);
+            }
+
+            @Override
+            public void onBannerLeftApplication(BannerView bannerView) {
+
             }
         });
 
