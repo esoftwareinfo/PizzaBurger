@@ -279,8 +279,6 @@ public class Pizza {
 
         Server = server;
 
-        AdSettings.setTestMode(true);
-
         MobileAds.initialize(Contextt, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus
